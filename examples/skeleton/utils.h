@@ -1,9 +1,9 @@
 #ifndef COMMON_UTILS_H_
 #define COMMON_UTILS_H_
 
-#define APP_EXIT(format, args...) do{\
+#define APP_EXIT(format, ...) do{\
 	printf("APP_EXIT: ");\
-	printf(format,args);\
+	printf(format);\
 	exit(1);\
 } while(0)
 
