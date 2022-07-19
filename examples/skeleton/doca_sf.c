@@ -52,7 +52,7 @@ main(int argc, char **argv)
     */
     doca_log_create_syslog_backend("doca_core");
 
-
+    printf("``queues:%d\n",dpdk_config.port_config.nb_queues);
     dpdk_init(&dpdk_config);
 
 }
