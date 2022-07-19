@@ -56,6 +56,19 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 		APP_EXIT("Failed getting device (port %u) info, error=%s", port, strerror(-ret));
 	port_conf.rx_adv_conf.rss_conf.rss_hf &= dev_info.flow_type_rss_offloads;
 
+    /* Configure the Ethernet device */
+	ret = rte_eth_dev_configure(port, rx_rings + nb_hairpin_queues, tx_rings + nb_hairpin_queues, &port_conf);
+	if (ret != 0)
+		return ret;
+	if (port_conf_default.rx_adv_conf.rss_conf.rss_hf != port_conf.rx_adv_conf.rss_conf.rss_hf) {
+        // DOCA_LOG_DBG -> printf
+        printf("Port %u modified RSS hash function based on hardware support, requested:%#" PRIx64
+			     " configured:%#" PRIx64 "",
+			     port, port_conf_default.rx_adv_conf.rss_conf.rss_hf,
+			     port_conf.rx_adv_conf.rss_conf.rss_hf);
+		
+	}
+
 }
 
 static int
