@@ -99,7 +99,7 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 	if (port_conf_default.rx_adv_conf.rss_conf.rss_hf != port_conf.rx_adv_conf.rss_conf.rss_hf) {
         // DOCA_LOG_DBG -> printf
         printf("``DEBUG: Port %u modified RSS hash function based on hardware support, requested:%#" PRIx64
-			     " configured:%#" PRIx64 "",
+			     " configured:%#\n" PRIx64 "",
 			     port, port_conf_default.rx_adv_conf.rss_conf.rss_hf,
 			     port_conf.rx_adv_conf.rss_conf.rss_hf);
 		
@@ -140,7 +140,7 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 
 	/* Display the port MAC address */
 	rte_eth_macaddr_get(port, &addr);
-	printf("``DEBUG: Port %u MAC: %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 "",
+	printf("``DEBUG: Port %u MAC: %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 "\n",
 		     (unsigned int)port, addr.addr_bytes[0], addr.addr_bytes[1], addr.addr_bytes[2], addr.addr_bytes[3],
 		     addr.addr_bytes[4], addr.addr_bytes[5]);
 
@@ -149,8 +149,8 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 	 * for best performance.
 	 */
 	if (rte_eth_dev_socket_id(port) > 0 && rte_eth_dev_socket_id(port) != (int)rte_socket_id()) {
-		printf("``WARN: Port %u is on remote NUMA node to polling thread", port);
-		printf("``WARN: \tPerformance will not be optimal.");
+		printf("``WARN: Port %u is on remote NUMA node to polling thread\n", port);
+		printf("``WARN: \tPerformance will not be optimal.\n");
 	}
 	return ret;
 
