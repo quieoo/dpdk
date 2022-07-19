@@ -16,6 +16,42 @@ allocate_mempool(const uint32_t total_nb_mbufs)
 	return mbuf_pool;
 }
 
+static int
+setup_hairpin_queues(uint16_t port_id, uint16_t peer_port_id, uint16_t *reserved_hairpin_q_list, int hairpin_queue_len)
+{
+	/* Port:
+	 *	0. RX queue
+	 *	1. RX hairpin queue rte_eth_rx_hairpin_queue_setup
+	 *	2. TX hairpin queue rte_eth_tx_hairpin_queue_setup
+	 */
+
+	int ret = 0, hairpin_q;
+	uint16_t nb_tx_rx_desc = 2048;
+	uint32_t manual = 1;
+	uint32_t tx_exp = 1;
+	struct rte_eth_hairpin_conf hairpin_conf = {
+	    .peer_count = 1,
+	    .manual_bind = !!manual,
+	    .tx_explicit = !!tx_exp,
+	    .peers[0] = {peer_port_id},
+	};
+
+	for (hairpin_q = 0; hairpin_q < hairpin_queue_len; hairpin_q++) {
+		// TX
+		hairpin_conf.peers[0].queue = reserved_hairpin_q_list[hairpin_q];
+		ret = rte_eth_tx_hairpin_queue_setup(port_id, reserved_hairpin_q_list[hairpin_q], nb_tx_rx_desc,
+						     &hairpin_conf);
+		if (ret != 0)
+			return ret;
+		// RX
+		hairpin_conf.peers[0].queue = reserved_hairpin_q_list[hairpin_q];
+		ret = rte_eth_rx_hairpin_queue_setup(port_id, reserved_hairpin_q_list[hairpin_q], nb_tx_rx_desc,
+						     &hairpin_conf);
+		if (ret != 0)
+			return ret;
+	}
+	return ret;
+}
 
 static int
 port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_config *app_config)
@@ -62,12 +98,61 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 		return ret;
 	if (port_conf_default.rx_adv_conf.rss_conf.rss_hf != port_conf.rx_adv_conf.rss_conf.rss_hf) {
         // DOCA_LOG_DBG -> printf
-        printf("Port %u modified RSS hash function based on hardware support, requested:%#" PRIx64
+        printf("``DEBUG: Port %u modified RSS hash function based on hardware support, requested:%#" PRIx64
 			     " configured:%#" PRIx64 "",
 			     port, port_conf_default.rx_adv_conf.rss_conf.rss_hf,
 			     port_conf.rx_adv_conf.rss_conf.rss_hf);
 		
 	}
+    
+    /* Enable RX in promiscuous mode for the Ethernet device */
+	ret = rte_eth_promiscuous_enable(port);
+	if (ret != 0)
+		return ret;
+    
+    /* Allocate and set up RX queues according to number of cores per Ethernet port */
+	for (q = 0; q < rx_rings; q++) {
+		ret = rte_eth_rx_queue_setup(port, q, RX_RING_SIZE, rte_eth_dev_socket_id(port), NULL, mbuf_pool);
+		if (ret < 0)
+			return ret;
+	}
+
+    /* Allocate and set up TX queues according to number of cores per Ethernet port */
+	for (q = 0; q < tx_rings; q++) {
+		ret = rte_eth_tx_queue_setup(port, q, TX_RING_SIZE, rte_eth_dev_socket_id(port), NULL);
+		if (ret < 0)
+			return ret;
+	}
+
+    /* Enabled hairpin queue before port start */
+	if (nb_hairpin_queues) {
+		for (queue_index = 0; queue_index < nb_hairpin_queues; queue_index++)
+			rss_queue_list[queue_index] = app_config->port_config.nb_queues + queue_index;
+		ret = setup_hairpin_queues(port, port ^ 1, rss_queue_list, nb_hairpin_queues);
+		if (ret != 0)
+			APP_EXIT("Cannot hairpin port %" PRIu8 ", ret=%d", port, ret);
+	}
+
+	/* Start the Ethernet port */
+	ret = rte_eth_dev_start(port);
+	if (ret < 0)
+		return ret;
+
+	/* Display the port MAC address */
+	rte_eth_macaddr_get(port, &addr);
+	printf("``DEBUG: Port %u MAC: %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 " %02" PRIx8 "",
+		     (unsigned int)port, addr.addr_bytes[0], addr.addr_bytes[1], addr.addr_bytes[2], addr.addr_bytes[3],
+		     addr.addr_bytes[4], addr.addr_bytes[5]);
+
+	/*
+	 * Check that the port is on the same NUMA node as the polling thread
+	 * for best performance.
+	 */
+	if (rte_eth_dev_socket_id(port) > 0 && rte_eth_dev_socket_id(port) != (int)rte_socket_id()) {
+		printf("``WARN: Port %u is on remote NUMA node to polling thread", port);
+		printf("``WARN: \tPerformance will not be optimal.");
+	}
+	return ret;
 
 }
 

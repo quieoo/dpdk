@@ -15,6 +15,8 @@
 
 #define NUM_MBUFS 8191
 #define MBUF_CACHE_SIZE 250
+#define RX_RING_SIZE 1024
+#define TX_RING_SIZE 1024
 
 void dpdk_init(struct application_dpdk_config *app_dpdk_config);
 
