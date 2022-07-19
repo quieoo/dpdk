@@ -9,4 +9,10 @@
 allow_experimental_apis = true
 sources = files(
         'basicfwd.c',
+        'doca_sf.c',
+        'doca_argp.c',
+        'doca_log.c',
+        'simple_fwd_vnf_core.c',
+        'dpdk_utils.c',
+        
 )
