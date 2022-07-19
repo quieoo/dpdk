@@ -1,6 +1,8 @@
 #include "dpdk_utils.h"
 
 void dpdk_init(struct application_dpdk_config *app_dpdk_config){
+    printf("``queues:%d\n",app_dpdk_config->port_config.nb_queues);
+
     int ret = 0;
 
     /* Check that DPDK enabled the required ports to send/receive on */
