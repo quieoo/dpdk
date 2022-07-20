@@ -14,5 +14,4 @@ sources = files(
         'doca_log.c',
         'simple_fwd_vnf_core.c',
         'dpdk_utils.c',
-        
 )

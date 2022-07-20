@@ -5,6 +5,16 @@
 #include "doca_argp.h"
 #include "dpdk_utils.h"
 
+
+static void
+signal_handler(int signum)
+{
+	if (signum == SIGINT || signum == SIGTERM) {
+		printf("``DEBUG: Signal %d received, preparing to exit...", signum);
+		simple_fwd_process_pkts_stop();
+	}
+}
+
 int
 main(int argc, char **argv)
 {
@@ -52,6 +62,19 @@ main(int argc, char **argv)
     */
     doca_log_create_syslog_backend("doca_core");
 
+	/*
+		dpdk_init: dpdk
+	*/
     dpdk_init(&dpdk_config);
+
+	/*
+		termination handle
+	*/
+	signal(SIGINT, signal_handler);
+	signal(SIGTERM, signal_handler);
+
+	/* convert to number of cycles */
+	app_cfg.stats_timer *= rte_get_timer_hz();
+	printf("``rte_get_timer_hz: %d\n",rte_get_timer_hz());
 
 }

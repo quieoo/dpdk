@@ -243,6 +243,11 @@ void dpdk_init(struct application_dpdk_config *app_dpdk_config){
 	/* Enable hairpin queues */
 	if (app_dpdk_config->port_config.nb_hairpin_q > 0)
 		enable_hairpin_queues(app_dpdk_config->port_config.nb_ports);
+
+	/*	
+	if (app_dpdk_config->sft_config.enable)
+		dpdk_sft_init(app_dpdk_config);
+	*/
 }
 
 
