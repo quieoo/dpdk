@@ -273,6 +273,8 @@ main(int argc, char **argv)
 				SRC_IP, EMPTY_MASK,
 				DEST_IP, FULL_MASK, &error);
 	/* >8 End of create flow and the flow rule. */
+
+	
 	if (!flow) {
 		printf("Flow can't be created %d message: %s\n",
 			error.type,

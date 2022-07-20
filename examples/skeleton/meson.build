@@ -13,5 +13,6 @@ sources = files(
         'doca_argp.c',
         'doca_log.c',
         'simple_fwd_vnf_core.c',
+        'simple_fwd.c',
         'dpdk_utils.c',
 )

@@ -1,10 +1,14 @@
 #include <stdint.h>
 #include <signal.h>
+
+#include "simple_fwd.h"
 #include "simple_fwd_port.h"
 #include "simple_fwd_vnf_core.h"
+
 #include "doca_argp.h"
 #include "dpdk_utils.h"
 
+#define DEFAULT_NB_METERS (1 << 13)
 
 static void
 signal_handler(int signum)
@@ -75,6 +79,19 @@ main(int argc, char **argv)
 
 	/* convert to number of cycles */
 	app_cfg.stats_timer *= rte_get_timer_hz();
-	printf("``rte_get_timer_hz: %d\n",rte_get_timer_hz());
+
+	vnf = simple_fwd_get_vnf();
+	port_cfg.nb_queues = dpdk_config.port_config.nb_queues;
+	port_cfg.is_hairpin = !!dpdk_config.port_config.nb_hairpin_q;
+	port_cfg.nb_meters = DEFAULT_NB_METERS;
+	port_cfg.nb_counters = (1 << 13);
+
+	if (vnf->vnf_init(&port_cfg) != 0) {
+		printf("``DEBUG: vnf application init error");
+		goto exit_app;
+	}
+
+exit_app:
+
 
 }

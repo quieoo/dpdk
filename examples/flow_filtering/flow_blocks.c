@@ -42,6 +42,7 @@ generate_ipv4_flow(uint16_t port_id, uint16_t rx_q,
 		uint32_t dest_ip, uint32_t dest_mask,
 		struct rte_flow_error *error)
 {
+
 	/* Declaring structs being used. 8< */
 	struct rte_flow_attr attr;
 	struct rte_flow_item pattern[MAX_PATTERN_NUM];
