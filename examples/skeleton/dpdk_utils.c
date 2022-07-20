@@ -178,6 +178,43 @@ dpdk_ports_init(struct application_dpdk_config *app_config)
 }
 
 
+static int
+bind_hairpin_queues(uint16_t port_id)
+{
+	/* Configure the Rx and Tx hairpin queues for the selected port. */
+	int ret = 0, peer_port, peer_ports_len;
+	uint16_t peer_ports[RTE_MAX_ETHPORTS];
+
+	/* bind current Tx to all peer Rx */
+	peer_ports_len = rte_eth_hairpin_get_peer_ports(port_id, peer_ports, RTE_MAX_ETHPORTS, 1);
+	if (peer_ports_len < 0)
+		return peer_ports_len;
+	for (peer_port = 0; peer_port < peer_ports_len; peer_port++) {
+		ret = rte_eth_hairpin_bind(port_id, peer_ports[peer_port]);
+		if (ret < 0)
+			return ret;
+	}
+	/* bind all peer Tx to current Rx */
+	peer_ports_len = rte_eth_hairpin_get_peer_ports(port_id, peer_ports, RTE_MAX_ETHPORTS, 0);
+	if (peer_ports_len < 0)
+		return peer_ports_len;
+	for (peer_port = 0; peer_port < peer_ports_len; peer_port++) {
+		ret = rte_eth_hairpin_bind(peer_ports[peer_port], port_id);
+		if (ret < 0)
+			return ret;
+	}
+	return ret;
+}
+
+static void
+enable_hairpin_queues(uint8_t nb_ports)
+{
+	uint8_t port_id;
+
+	for (port_id = 0; port_id < nb_ports; port_id++)
+		if (bind_hairpin_queues(port_id) != 0)
+			APP_EXIT("Hairpin bind failed on port=%u", port_id);
+}
 
 
 void dpdk_init(struct application_dpdk_config *app_dpdk_config){
@@ -203,6 +240,9 @@ void dpdk_init(struct application_dpdk_config *app_dpdk_config){
     if (app_dpdk_config->port_config.nb_ports > 0 && dpdk_ports_init(app_dpdk_config) != 0)
 		APP_EXIT("Ports allocation failed");
 
+	/* Enable hairpin queues */
+	if (app_dpdk_config->port_config.nb_hairpin_q > 0)
+		enable_hairpin_queues(app_dpdk_config->port_config.nb_ports);
 }
 
 
