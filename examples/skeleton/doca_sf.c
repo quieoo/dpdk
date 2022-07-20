@@ -92,6 +92,6 @@ main(int argc, char **argv)
 	}
 
 exit_app:
-
+	printf("`` exit_app\n");
 
 }
