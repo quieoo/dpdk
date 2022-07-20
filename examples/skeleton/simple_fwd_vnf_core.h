@@ -34,6 +34,7 @@ struct simple_fwd_process_pkts_params {
 
 void register_simple_fwd_params(void);
 void simple_fwd_process_pkts_stop(void);
-
+void simple_fwd_map_queue(uint16_t nb_queues);
+int simple_fwd_process_pkts(void *process_pkts_params);
 
 #endif /* SIMPLE_FWD_VNF_CORE_H_ */

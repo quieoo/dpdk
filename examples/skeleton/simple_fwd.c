@@ -1,10 +1,14 @@
 #include "simple_fwd.h"
 #include "app_vnf.h"
 
+
+
+
 static int
 simple_fwd_init(void *p)
 {
-	printf("``simple_fwd_init");
+	printf("``simple_fwd_init\n");
+
 }
 
 static int

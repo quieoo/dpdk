@@ -1,12 +1,15 @@
 #include <stdint.h>
 #include <signal.h>
 
+#include<rte_ethdev.h>
+
 #include "simple_fwd.h"
 #include "simple_fwd_port.h"
 #include "simple_fwd_vnf_core.h"
 
 #include "doca_argp.h"
 #include "dpdk_utils.h"
+#include "doca_flow.h"
 
 #define DEFAULT_NB_METERS (1 << 13)
 
@@ -86,10 +89,26 @@ main(int argc, char **argv)
 	port_cfg.nb_meters = DEFAULT_NB_METERS;
 	port_cfg.nb_counters = (1 << 13);
 
+	/*
+		initialize flow table
+	*/
 	if (vnf->vnf_init(&port_cfg) != 0) {
 		printf("``DEBUG: vnf application init error");
 		goto exit_app;
 	}
+
+	simple_fwd_map_queue(dpdk_config.port_config.nb_queues);
+	process_pkts_params.vnf = vnf;
+	rte_eal_mp_remote_launch(simple_fwd_process_pkts, &process_pkts_params, CALL_MAIN);
+	rte_eal_mp_wait_lcore();
+
+
+	/*
+		doca_flow_destroy_port -> rte_eth_dev_close
+	*/
+	RTE_ETH_FOREACH_DEV(port_id)
+		doca_flow_destroy_port(port_id);
+
 
 exit_app:
 	printf("`` exit_app\n");

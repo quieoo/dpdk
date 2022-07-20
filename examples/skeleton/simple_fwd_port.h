@@ -6,6 +6,8 @@
 #include <signal.h>
 #include <stdbool.h>
 
+#define NUM_OF_PORTS (2)
+
 struct simple_fwd_port_cfg {
 	uint16_t port_id;
 	uint16_t nb_queues;
@@ -16,7 +18,8 @@ struct simple_fwd_port_cfg {
 };
 
 
-
+void
+simple_fwd_dump_port_stats(uint16_t port_id);
 
 #endif /* SIMPLE_FWD_PORT_H_ */
 

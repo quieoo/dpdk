@@ -12,7 +12,9 @@ sources = files(
         'doca_sf.c',
         'doca_argp.c',
         'doca_log.c',
+        'doca_flow.c',
         'simple_fwd_vnf_core.c',
+        'simple_fwd_port.c',
         'simple_fwd.c',
         'dpdk_utils.c',
 )
