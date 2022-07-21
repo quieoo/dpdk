@@ -117,6 +117,7 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 			":: cannot configure device: err=%d, port=%u\n",
 			ret, port);
 	}
+	printf("`` rte_eth_dev_configure\n");
 
 	rxq_conf = dev_info.default_rxconf;
 	rxq_conf.offloads = port_conf.rxmode.offloads;
@@ -149,6 +150,8 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 	}
 	/* >8 End of Configuring RX and TX queues connected to single port. */
 
+	printf("`` queue setup done\n");
+
 	/* Setting the RX port to promiscuous mode. 8< */
 	ret = rte_eth_promiscuous_enable(port);
 	if (ret != 0)
@@ -166,6 +169,7 @@ port_init(struct rte_mempool *mbuf_pool, uint8_t port, struct application_dpdk_c
 	}
 	/* >8 End of starting the port. */
 
+	printf("`` dev start done\n");
 	assert_link_status(port);
 
 	printf(":: initializing port: %d done\n", port);
