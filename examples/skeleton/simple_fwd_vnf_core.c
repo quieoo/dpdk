@@ -86,12 +86,11 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 	printf("		ingress: %d\n",attr->ingress);
 	printf("		priority: %d\n",attr->priority);
 	printf("		transfer: %d\n",attr->transfer);
-	
-	int pattern_length=sizeof(pattern)/sizeof(pattern[0]);
-	for(int i=0;i<pattern_length;i++){
+	int i=0;
+	for (; pattern->type != RTE_FLOW_ITEM_TYPE_END; pattern++){
 		printf("	pattern-%d\n",i);
-		printf("		type: %d, ",i,pattern[i].type);
-		void* spec=pattern[i].spec;
+		printf("		type: %d, ",i,pattern->type);
+		void* spec=pattern->spec;
 		if(sizeof(*spec)==sizeof(struct rte_flow_item_ipv4)){
 
 		struct rte_flow_item_ipv4* item=((struct rte_flow_item_ipv4 *)(spec));
@@ -99,7 +98,11 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		printf("		dst_addr:%d",item->hdr.dst_addr);
 		
 		}
+		i++;
 	}
+
+		
+	
 	printf("}\n");
 	
 }
