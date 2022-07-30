@@ -74,6 +74,27 @@ void simple_fwd_map_queue(uint16_t nb_queues){
 	}
 }
 
+void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struct rte_flow_item *pattern, const struct rte_flow_action *actions, struct rte_flow_error *error){
+	printf("{\n");
+	
+	printf("	port_id: %d\n",port_id);
+	
+	printf("	attr: \n");
+	printf("		egress: %d\n",attr->egress);
+	printf("		group: %d\n",attr->group);
+	printf("		ingress: %d\n",attr->ingress);
+	printf("		priority: %d\n",attr->priority);
+	printf("		transfer: %d\n",attr->transfer);
+	
+	printf("	pattern: \n");
+	int pattern_length=sizeof(pattern)/sizeof(pattern[0]);
+	for(int i=0;i<pattern_length;i++){
+		printf("		%d -- type: %d, ",i,pattern[i].type);
+	}
+	printf("}\n");
+	
+}
+
 /* Function responsible for creating the flow rule. 8< */
 struct rte_flow *
 generate_ipv4_flow(uint16_t port_id, uint16_t rx_q,
@@ -147,6 +168,7 @@ generate_ipv4_flow(uint16_t port_id, uint16_t rx_q,
 		flow = rte_flow_create(port_id, &attr, pattern, action, error);
 	/* >8 End of validation the rule and create it. */
 
+	output_flow(port_id, &attr, pattern, action, error);
 	return flow;
 }
 
@@ -177,6 +199,7 @@ simple_fwd_process_offload(struct rte_mbuf *mbuf, uint16_t queue_id, struct app_
 			error.message ? error.message : "(no stated reason)");
 		rte_exit(EXIT_FAILURE, "error in creating flow");
 	}
+
     
 }
 
@@ -214,6 +237,7 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
+			/*
 			if (nb_rx) {
 				for (j = 0; j < nb_rx; j++) {
 					struct rte_mbuf *m = mbufs[j];
@@ -228,7 +252,7 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 							(unsigned int)port_id);
 					printf("\n");				
 					}
-			}
+			}*/
 			
 			for (j = 0; j < nb_rx; j++) {
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
