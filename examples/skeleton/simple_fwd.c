@@ -8,6 +8,7 @@ static int
 simple_fwd_init(void *p)
 {
 	printf("``simple_fwd_init\n");
+	return 0;
 
 }
 
