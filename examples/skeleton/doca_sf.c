@@ -107,7 +107,7 @@ main(int argc, char **argv)
 		doca_flow_destroy_port -> rte_eth_dev_close
 	*/
 	RTE_ETH_FOREACH_DEV(port_id)
-		doca_flow_destroy_port(port_id);
+	doca_flow_destroy_port(port_id);
 
 
 exit_app:

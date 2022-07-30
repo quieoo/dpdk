@@ -150,6 +150,14 @@ generate_ipv4_flow(uint16_t port_id, uint16_t rx_q,
 	return flow;
 }
 
+static inline void
+print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
+{
+	char buf[RTE_ETHER_ADDR_FMT_SIZE];
+	rte_ether_format_addr(buf, RTE_ETHER_ADDR_FMT_SIZE, eth_addr);
+	printf("%s%s", what, buf);
+}
+
 static void
 simple_fwd_process_offload(struct rte_mbuf *mbuf, uint16_t queue_id, struct app_vnf *vnf)
 {
@@ -194,6 +202,7 @@ int simple_fwd_process_pkts(void *process_pkts_params){
     printf("``INFO: core %u process queue %u start", core_id, params->queues[0]);
     last_tsc = rte_rdtsc();
 
+	struct rte_ether_hdr *eth_hdr;
     while (!force_quit) {
 		if (core_id == rte_get_main_lcore()) {
 			cur_tsc = rte_rdtsc();
@@ -205,6 +214,22 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
+			if (nb_rx) {
+				for (j = 0; j < nb_rx; j++) {
+					struct rte_mbuf *m = mbufs[j];
+
+					eth_hdr = rte_pktmbuf_mtod(m,
+							struct rte_ether_hdr *);
+					print_ether_addr("src=",
+							&eth_hdr->src_addr);
+					print_ether_addr(" - dst=",
+							&eth_hdr->dst_addr);
+					printf(" - port_id=0x%x",
+							(unsigned int)port_id);
+					printf("\n");				
+					}
+			}
+			
 			for (j = 0; j < nb_rx; j++) {
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
 					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
