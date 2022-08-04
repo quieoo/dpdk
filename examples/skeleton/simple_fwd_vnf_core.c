@@ -89,7 +89,8 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 	int i=0;
 	
 	for (; pattern->type != RTE_FLOW_ITEM_TYPE_END; pattern++){
-
+		printf("	pattern-%d:\n",i++);
+		printf("		type: ");
 		switch (pattern->type)
 		{
 			case RTE_FLOW_ITEM_TYPE_VOID:
@@ -100,11 +101,21 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				break;
 			case RTE_FLOW_ITEM_TYPE_IPV4:
 				printf("RTE_FLOW_ITEM_TYPE_IPV4\n");
+				const struct rte_flow_item_ipv4 *mask = pattern->mask;
+				printf("		mask.hdr:\n");
+				printf("			dst_addr:%d\n",mask->hdr.dst_addr);
+				printf("			src_addr:%d\n",mask->hdr.src_addr);
+
+				const struct rte_flow_item_ipv4 *spec = pattern->spec;
+				printf("		spec.hdr:\n");
+				printf("			dst_addr:%d\n",spec->hdr.dst_addr);
+				printf("			src_addr:%d\n",mask->hdr.src_addr);
+				
 				break;
 			default:
 				printf("other type: %d\n",pattern->type);
-				
 		}
+
 /*
 
 		printf("	pattern-%d\n",i);
