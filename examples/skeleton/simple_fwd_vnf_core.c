@@ -107,13 +107,13 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				printf("			dst_addr:%x\n",mask->hdr.dst_addr);
 				
 				const struct rte_flow_item_ipv4 *spec = pattern->spec;
-				struct in_addr addr1;
-				addr1.s_addr=spec->hdr.dst_addr;
-				char *p = inet_ntoa(addr1);
-				printf("p is %s\r\n", p);
+				struct in_addr dst,src;
+				dst.s_addr=spec->hdr.dst_addr;
+				src.s_addr=spec->hdr.src_addr;
+
 				printf("		spec.hdr:\n");
-				printf("			src_addr:%d\n",spec->hdr.src_addr);
-				printf("			dst_addr:%d\n",spec->hdr.dst_addr);
+				printf("			src_addr:%s\n",inet_ntoa(src));
+				printf("			dst_addr:%d\n",inet_ntoa(dst));
 				
 				break;
 			default:
