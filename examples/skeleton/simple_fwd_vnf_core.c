@@ -102,9 +102,12 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			case RTE_FLOW_ITEM_TYPE_IPV4:
 				printf("RTE_FLOW_ITEM_TYPE_IPV4\n");
 				const struct rte_flow_item_ipv4 *mask = pattern->mask;
+				struct in_addr mask_dst,mask_src;
+				mask_dst.s_addr=mask->hdr.dst_addr;
+				mask_src.s_addr=mask->hdr.src_addr;
 				printf("		mask.hdr:\n");
 				printf("			src_addr:%x\n",mask->hdr.src_addr);
-				printf("			dst_addr:%x\n",mask->hdr.dst_addr);
+				printf("			dst_addr:%x\n",inet_ntoa(mask_dst));
 				
 				const struct rte_flow_item_ipv4 *spec = pattern->spec;
 				struct in_addr dst,src;
