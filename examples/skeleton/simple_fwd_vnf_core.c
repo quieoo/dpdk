@@ -218,7 +218,7 @@ generate_ipv4_flow(uint16_t port_id, uint16_t rx_q,
 		flow = rte_flow_create(port_id, &attr, pattern, action, error);
 	/* >8 End of validation the rule and create it. */
 
-	output_flow(port_id, &attr, pattern, action, error);
+	//output_flow(port_id, &attr, pattern, action, error);
 	return flow;
 }
 
@@ -306,7 +306,10 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 			
 			for (j = 0; j < nb_rx; j++) {
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
-					simple_fwd_process_offload(mbufs[j], queue_id, vnf);
+					{
+						printf("core_id: %d\n",core_id);
+						simple_fwd_process_offload(mbufs[j], queue_id, vnf);
+					}
 				if (app_config->rx_only)
 					rte_pktmbuf_free(mbufs[j]);
 				else
