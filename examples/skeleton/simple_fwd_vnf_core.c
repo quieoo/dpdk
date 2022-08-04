@@ -287,7 +287,7 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
-			/*
+			
 			if (nb_rx) {
 				for (j = 0; j < nb_rx; j++) {
 					struct rte_mbuf *m = mbufs[j];
@@ -302,7 +302,7 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 							(unsigned int)port_id);
 					printf("\n");				
 					}
-			}*/
+			}
 			
 			for (j = 0; j < nb_rx; j++) {
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
