@@ -113,7 +113,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 
 				printf("		spec.hdr:\n");
 				printf("			src_addr:%s\n",inet_ntoa(src));
-				printf("			dst_addr:%d\n",inet_ntoa(dst));
+				printf("			dst_addr:%s\n",inet_ntoa(dst));
 				
 				break;
 			default:
