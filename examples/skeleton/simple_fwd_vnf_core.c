@@ -123,23 +123,30 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				printf("other type: %d\n",pattern->type);
 		}
 
-/*
-
-		printf("	pattern-%d\n",i);
-		printf("		type: %d, ",i,pattern->type);
-		void* spec=pattern->spec;
-		if(sizeof(*spec)==sizeof(struct rte_flow_item_ipv4)){
-
-		struct rte_flow_item_ipv4* item=((struct rte_flow_item_ipv4 *)(spec));
-		printf("		src_addr:%d",item->hdr.src_addr);
-		printf("		dst_addr:%d",item->hdr.dst_addr);
-		
-		}
-		i++;
-		*/
 	}
+	i=0;
+	for (; actions->type != RTE_FLOW_ACTION_TYPE_END; actions++) {
+		printf("	action-%d:\n",i++);
+		printf("		type: ");
 
-		
+		switch (actions->type)
+		{
+			case RTE_FLOW_ACTION_TYPE_VOID:
+				printf("RTE_FLOW_ACTION_TYPE_VOID\n");
+				break;
+			case RTE_FLOW_ACTION_TYPE_DROP:
+				printf("RTE_FLOW_ACTION_TYPE_DROP\n");
+				break;
+			case RTE_FLOW_ACTION_TYPE_QUEUE:
+				printf("RTE_FLOW_ACTION_TYPE_QUEUE\n");
+				const struct rte_flow_action_queue *queue = actions->conf;
+				printf("		index:%d\n",queue->index);
+				break;
+			default:
+				printf("other type: %d\n",actions->type);
+		}
+
+	}
 	
 	printf("}\n");
 	
@@ -234,6 +241,8 @@ static void
 simple_fwd_process_offload(struct rte_mbuf *mbuf, uint16_t queue_id, struct app_vnf *vnf)
 {
 
+	
+
     /*
         simple_fwd_process_offload -> generate_ipv4_flow
     */
@@ -287,7 +296,7 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 		for (port_id = 0; port_id < NUM_OF_PORTS; port_id++) {
 			queue_id = params->queues[port_id];
 			nb_rx = rte_eth_rx_burst(port_id, queue_id, mbufs, VNF_RX_BURST_SIZE);
-			
+			/*
 			if (nb_rx) {
 				for (j = 0; j < nb_rx; j++) {
 					struct rte_mbuf *m = mbufs[j];
@@ -302,12 +311,12 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 							(unsigned int)port_id);
 					printf("\n");				
 					}
-			}
+			}*/
 			
 			for (j = 0; j < nb_rx; j++) {
 				if (app_config->hw_offload && core_id == rte_get_main_lcore())
 					{
-						printf("core_id: %d\n",core_id);
+						// printf("core_id: %d\n",core_id);
 						simple_fwd_process_offload(mbufs[j], queue_id, vnf);
 					}
 				if (app_config->rx_only)
