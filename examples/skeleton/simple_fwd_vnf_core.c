@@ -107,7 +107,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				mask_src.s_addr=mask->hdr.src_addr;
 				printf("		mask.hdr:\n");
 				printf("			src_addr:%x\n",mask->hdr.src_addr);
-				printf("			dst_addr:%x\n",inet_ntoa(mask_dst));
+				printf("			dst_addr: %s\n",inet_ntoa(mask_dst));
 				
 				const struct rte_flow_item_ipv4 *spec = pattern->spec;
 				struct in_addr dst,src;
