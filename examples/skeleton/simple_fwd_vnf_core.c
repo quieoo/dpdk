@@ -99,7 +99,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 			case RTE_FLOW_ITEM_TYPE_IPV4:
 				printf("RTE_FLOW_ITEM_TYPE_IPV4\n");
 			default:
-				printf("not found\n");
+				printf("%d\n",pattern->type);
 		}
 /*
 
