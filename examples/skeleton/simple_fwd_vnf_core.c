@@ -94,12 +94,16 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		{
 			case RTE_FLOW_ITEM_TYPE_VOID:
 				printf("RTE_FLOW_ITEM_TYPE_VOID\n");
+				break;
 			case RTE_FLOW_ITEM_TYPE_ETH:
 				printf("RTE_FLOW_ITEM_TYPE_ETH\n");
+				break;
 			case RTE_FLOW_ITEM_TYPE_IPV4:
 				printf("RTE_FLOW_ITEM_TYPE_IPV4\n");
+				break;
 			default:
-				printf("%d\n",pattern->type);
+				printf("other type: %d\n",pattern->type);
+				
 		}
 /*
 
