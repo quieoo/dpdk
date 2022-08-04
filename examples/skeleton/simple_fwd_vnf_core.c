@@ -91,6 +91,7 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 		printf("	pattern-%d\n",i);
 		printf("		type: %d, ",i,pattern->type);
 		void* spec=pattern->spec;
+		printf("%d:%d\n",sizeof(*spec), sizeof(struct rte_flow_item_ipv4));
 		if(sizeof(*spec)==sizeof(struct rte_flow_item_ipv4)){
 
 		struct rte_flow_item_ipv4* item=((struct rte_flow_item_ipv4 *)(spec));
