@@ -256,11 +256,13 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	switch (ipv4_hdr->next_proto_id)
 	{
 		case IPPROTO_TCP:
-			struct rte_tcp_hdr *tcp=(struct rte_tcp_hdr *)((unsigned char *)ipv4_hdr +sizeof(struct rte_ipv4_hdr));
+			struct rte_tcp_hdr *tcp;
+			tcp=(struct rte_tcp_hdr *)((unsigned char *)ipv4_hdr +sizeof(struct rte_ipv4_hdr));
 			printf("TCP: src=%d -dst=%d\n",tcp->src_port,tcp->dst_port);
 			break;
 		case IPPROTO_UDP:
-			struct rte_udp_hdr *udp=(struct rte_udp_hdr *)((unsigned char *)ipv4_hdr+sizeof(struct rte_ipv4_hdr));
+			struct rte_udp_hdr *udp;
+			udp=(struct rte_udp_hdr *)((unsigned char *)ipv4_hdr+sizeof(struct rte_ipv4_hdr));
 			printf("UDP: src=%d -dst=%d\n",udp->src_port,udp->dst_port);
 			break;
 		default:
