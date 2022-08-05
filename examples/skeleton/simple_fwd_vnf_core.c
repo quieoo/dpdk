@@ -352,12 +352,9 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	action[3].type=RTE_FLOW_ACTION_TYPE_END;
 
 	struct rte_flow_error error;
+	printf("prepare to validate flow\n");
 	int res=rte_flow_validate(port_id, &attr,pattern,action,&error);
-	if(res){
-		printf("ERROR while flow validate: %d\n",res);
-		printf("%s\n",error.message);
-		return;
-	}else{
+	if(!res){
 		flow = rte_flow_create(port_id, &attr, pattern, action, &error);
 		if (!flow) {
 			printf("Flow can't be created %d message: %s\n",
