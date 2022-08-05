@@ -359,7 +359,13 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	set_tp.port=RTE_BE16(55555);
 	action[2].conf=&set_tp;
 
-	action[3].type=RTE_FLOW_ACTION_TYPE_END;
+
+	struct rte_flow_action_queue queue = { .index = selected_queue };
+	action[3].type = RTE_FLOW_ACTION_TYPE_QUEUE;
+	action[3].conf = &queue;
+
+
+	action[4].type=RTE_FLOW_ACTION_TYPE_END;
 
 	struct rte_flow_error error;
 	int res=rte_flow_validate(port_id, &attr,pattern,action,&error);
