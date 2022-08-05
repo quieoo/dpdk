@@ -255,8 +255,9 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	/*
 		pattern: match all new packet
 	*/
+	int p=0;
 	//mac
-	pattern[0].type=RTE_FLOW_ITEM_TYPE_ETH;
+	pattern[p].type=RTE_FLOW_ITEM_TYPE_ETH;
 	struct rte_flow_item_eth mac_spec;
 	memset(&mac_spec,0,sizeof(struct rte_flow_item_eth));
 
@@ -267,10 +268,10 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 
 	mac_spec.hdr.src_addr=eth_hdr->src_addr;
 	mac_spec.hdr.dst_addr=eth_hdr->dst_addr;
-	pattern[0].spec=&mac_spec;
-
+	pattern[p].spec=&mac_spec;
 	//ip
-	pattern[1].type=RTE_FLOW_ITEM_TYPE_IPV4;
+	p++;
+	pattern[p].type=RTE_FLOW_ITEM_TYPE_IPV4;
 	struct rte_flow_item_ipv4 ip_spec;
 	memset(&ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
 
@@ -283,14 +284,15 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 
 	ip_spec.hdr.src_addr=ipv4_hdr->src_addr;
 	ip_spec.hdr.dst_addr=ipv4_hdr->dst_addr;
-	pattern[1].spec=&ip_spec;
+	pattern[p].spec=&ip_spec;
 
 	//TCP-UDP
 	switch (ipv4_hdr->next_proto_id)
 	{
 		case IPPROTO_TCP:
 		{
-			pattern[2].type=RTE_FLOW_ITEM_TYPE_TCP;
+			p++;
+			pattern[p].type=RTE_FLOW_ITEM_TYPE_TCP;
 			struct rte_flow_item_tcp tcp_spec;
 			memset(&tcp_spec,0,sizeof(struct rte_flow_item_tcp));
 
@@ -300,13 +302,14 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 
 			tcp_spec.hdr.src_port=tcp->src_port;
 			tcp_spec.hdr.dst_port=tcp->dst_port;
-			pattern[2].spec=&tcp_spec;
+			pattern[p].spec=&tcp_spec;
 
 			break;
 		}
 		case IPPROTO_UDP:
 		{
-			pattern[2].type=RTE_FLOW_ITEM_TYPE_UDP;
+			p++;
+			pattern[p].type=RTE_FLOW_ITEM_TYPE_UDP;
 			struct rte_flow_item_udp udp_spec;
 			memset(&udp_spec,0,sizeof(struct rte_flow_item_udp));
 
@@ -316,7 +319,7 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 
 			udp_spec.hdr.src_port=udp->src_port;
 			udp_spec.hdr.dst_port=udp->dst_port;
-			pattern[2].spec=&udp_spec;
+			pattern[p].spec=&udp_spec;
 
 			break;
 		}
@@ -324,9 +327,9 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 			printf("OTHER: typeid- %d\n",ipv4_hdr->next_proto_id);
 	}
 
-	printf("----------------------------------------\n");
-	int j=0;
-	pattern[2].type=RTE_FLOW_ITEM_TYPE_END;
+	
+	p++;
+	pattern[p].type=RTE_FLOW_ITEM_TYPE_END;
 	
 	/*
 		action: redirect all packet to 
@@ -374,7 +377,7 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 		printf("ERROR while validate flow: %d\n",res);
 		printf("%s\n",error.message);
 	}
-
+	printf("----------------------------------------\n");
 
 }
 
