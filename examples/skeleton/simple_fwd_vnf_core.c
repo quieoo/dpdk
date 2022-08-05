@@ -103,12 +103,13 @@ void output_flow(uint16_t port_id, const struct rte_flow_attr *attr, const struc
 				printf("RTE_FLOW_ITEM_TYPE_IPV4\n");
 				const struct rte_flow_item_ipv4 *mask = pattern->mask;
 				struct in_addr mask_dst,mask_src;
-				mask_dst.s_addr=mask->hdr.dst_addr;
-				mask_src.s_addr=mask->hdr.src_addr;
-				printf("		mask.hdr:\n");
-				printf("			src_addr:%s\n",inet_ntoa(mask_src));
-				printf("			dst_addr: %s\n",inet_ntoa(mask_dst));
-				
+				if(mask!=NULL){
+					mask_dst.s_addr=mask->hdr.dst_addr;
+					mask_src.s_addr=mask->hdr.src_addr;
+					printf("		mask.hdr:\n");
+					printf("			src_addr:%s\n",inet_ntoa(mask_src));
+					printf("			dst_addr: %s\n",inet_ntoa(mask_dst));
+				}
 				const struct rte_flow_item_ipv4 *spec = pattern->spec;
 				struct in_addr dst,src;
 				dst.s_addr=spec->hdr.dst_addr;
@@ -377,7 +378,6 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 				error.message ? error.message : "(no stated reason)");
 			rte_exit(EXIT_FAILURE, "error in creating flow");
 		}
-		printf("create flow\n");
 		output_flow(port_id, &attr, pattern, action, &error);
 	}else{
 		printf("ERROR while validate flow: %d\n",res);
