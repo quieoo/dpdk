@@ -332,12 +332,19 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 			dst_ip: 18.18.18.18
 			dst_port: 55555
 	*/
+	int j=0;
+	printf(j++);
 	action[0].type=RTE_FLOW_ACTION_TYPE_SET_MAC_DST;
+	printf(j++);
 	struct rte_flow_action_set_mac dst_mac;
 	// memset(&dst_mac,0,sizeof(struct rte_flow_action_set_mac));
+	printf(j++);
 	uint8_t mac_addrs={0x0c,0x42,0xa1,0x4b,0xc5,0x8c};
+	printf(j++);
 	memcpy(dst_mac.mac_addr,mac_addrs,sizeof(mac_addrs));
+	printf(j++);
 	action[0].conf=&dst_mac;
+	printf(j++);
 	
 	action[1].type=RTE_FLOW_ACTION_TYPE_SET_IPV4_DST;
 	struct rte_flow_action_set_ipv4 set_ipv4;
@@ -411,7 +418,7 @@ int simple_fwd_process_pkts(void *process_pkts_params){
 		printf("``DEBUG: core %u nothing need to do", core_id);
 		return 0;
 	}
-    printf("``INFO: core %u process queue %u start", core_id, params->queues[0]);
+    printf("``INFO: core %u process queue %u start\n", core_id, params->queues[0]);
     last_tsc = rte_rdtsc();
 
 	struct rte_ether_hdr *eth_hdr;
