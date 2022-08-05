@@ -238,13 +238,41 @@ print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
 }
 
 static void generate_new_flow(struct rte_mbuf *mbuf){
+	struct rte_flow_attr attr;
+	struct rte_flow_item pattern[MAX_PATTERN_NUM];
+	struct rte_flow_action action[MAX_ACTION_NUM];
+	struct rte_flow *flow = NULL;
+	memset(pattern, 0, sizeof(pattern));
+	memset(action, 0, sizeof(action));
+	memset(&attr, 0, sizeof(struct rte_flow_attr));
+
+	/*
+		attr
+	*/
+	
+
+	/*
+		pattern: match all new packet
+	*/
 	//mac
+	pattern[0].type=RTE_FLOW_ITEM_TYPE_ETH;
+	struct rte_flow_item_eth mac_spec;
+	memset(&mac_spec,0,sizeof(struct rte_flow_item_eth));
+
 	struct rte_ether_hdr *eth_hdr=rte_pktmbuf_mtod(mbuf, struct rte_ether_dhr*);
 	print_ether_addr("MAC: src=",&eth_hdr->src_addr);
 	print_ether_addr(" -dst=",&eth_hdr->dst_addr);
 	printf("\n");
 
+	mac_spec.hdr.src_addr=eth_hdr->src_addr;
+	mac_spec.hdr.dst_addr=eth_hdr->dst_addr;
+	pattern[0].spec=&mac_spec;
+
 	//ip
+	pattern[1].type=RTE_FLOW_ITEM_TYPE_IPV4;
+	struct rte_flow_item_ipv4 ip_spec;
+	memset(&ip_spec, 0, sizeof(struct rte_flow_item_ipv4));
+
 	struct rte_ipv4_hdr *ipv4_hdr = (struct rte_ipv4_hdr *)(eth_hdr + 1);
 	struct in_addr addr;
 	addr.s_addr=ipv4_hdr->src_addr;
@@ -252,26 +280,96 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	addr.s_addr=ipv4_hdr->dst_addr;
 	printf(" -dst=%s\n",inet_ntoa(addr));
 
+	ip_spec.hdr.src_addr=ipv4_hdr->src_addr;
+	ip_spec.hdr.dst_addr=ipv4_hdr->dst_addr;
+	pattern[1].spec=&ip_spec;
+
 	//TCP-UDP
 	switch (ipv4_hdr->next_proto_id)
 	{
 		case IPPROTO_TCP:
 		{
+			pattern[2].type=RTE_FLOW_ITEM_TYPE_TCP;
+			struct rte_flow_item_tcp tcp_spec;
+			memset(&tcp_spec,0,sizeof(struct rte_flow_item_tcp));
+
 			struct rte_tcp_hdr *tcp;
 			tcp=(struct rte_tcp_hdr *)((unsigned char *)ipv4_hdr +sizeof(struct rte_ipv4_hdr));
 			printf("TCP: src=%d -dst=%d\n",tcp->src_port,tcp->dst_port);
+
+			tcp_spec.hdr.src_port=tcp->src_port;
+			tcp_spec.hdr.dst_port=tcp->dst_port;
+			pattern[2].spec=&tcp_spec;
+
 			break;
 		}
 		case IPPROTO_UDP:
 		{
+			pattern[2].type=RTE_FLOW_ITEM_TYPE_UDP;
+			struct rte_flow_item_udp udp_spec;
+			memset(&udp_spec,0,sizeof(struct rte_flow_item_udp));
+
 			struct rte_udp_hdr *udp;
 			udp=(struct rte_udp_hdr *)((unsigned char *)ipv4_hdr+sizeof(struct rte_ipv4_hdr));
 			printf("UDP: src=%d -dst=%d\n",udp->src_port,udp->dst_port);
+
+			udp_spec.hdr.src_port=udp->src_port;
+			udp_spec.hdr.dst_port=udp->dst_port;
+			pattern[2].spec=&udp_spec;
+
 			break;
 		}
 		default:
 			printf("OTHER: typeid- %d\n",ipv4_hdr->next_proto_id);
 	}
+
+	printf("----------------------------------------\n");
+	pattern[2].type=RTE_FLOW_ITEM_TYPE_END;
+
+	/*
+		action: redirect all packet to 
+			dst_mac: 0x0c, 0x42, 0xa1, 0x4b, 0xc5, 0x8c
+			dst_ip: 18.18.18.18
+			dst_port: 55555
+	*/
+	action[0].type=RTE_FLOW_ACTION_TYPE_SET_MAC_DST;
+	struct rte_flow_action_set_mac dst_mac;
+	// memset(&dst_mac,0,sizeof(struct rte_flow_action_set_mac));
+	uint8_t mac_addrs={0x0c,0x42,0xa1,0x4b,0xc5,0x8c};
+	memcpy(dst_mac.mac_addr,mac_addrs,sizeof(mac_addrs));
+	action[0].conf=&dst_mac;
+	
+	action[1].type=RTE_FLOW_ACTION_TYPE_SET_IPV4_DST;
+	struct rte_flow_action_set_ipv4 set_ipv4;
+	set_ipv4.ipv4_addr=RTE_BE32( 18<<24 + 18<<16 + 18<<8 + 18);
+	action[1].conf=&set_ipv4;
+
+	action[2].type=RTE_FLOW_ACTION_TYPE_SET_TP_DST;
+	struct rte_flow_action_set_tp set_tp;
+	set_tp.port=RTE_BE16(55555);
+	action[2].conf=&set_tp;
+
+	action[3].type=RTE_FLOW_ACTION_TYPE_END;
+
+	struct rte_flow_error error;
+	int res=rte_flow_validate(port_id, &attr,pattern,action,&error);
+	if(res){
+		printf("ERROR while flow validate: %d\n",res);
+		printf("%s\n",error.message);
+		return;
+	}else{
+		flow = rte_flow_create(port_id, &attr, pattern, action, &error);
+		if (!flow) {
+			printf("Flow can't be created %d message: %s\n",
+				error.type,
+				error.message ? error.message : "(no stated reason)");
+			rte_exit(EXIT_FAILURE, "error in creating flow");
+		}
+		
+		output_flow(port_id, &attr, pattern, action, &error);
+	}
+
+
 }
 
 static void
