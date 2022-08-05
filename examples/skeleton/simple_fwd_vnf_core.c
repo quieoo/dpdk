@@ -341,11 +341,13 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	struct rte_flow_action_set_mac dst_mac;
 	printf("%d\n",j++);
 	// memset(&dst_mac,0,sizeof(struct rte_flow_action_set_mac));
-	uint8_t mac_addrs[]={0x0c,0x42,0xa1,0x4b,0xc5,0x8c};
-	printf("%d\n",j++);
-	for(int k=0;k<len(mac_addrs);k++){
-		dst_mac.mac_addr[k]=mac_addrs[k];
-	}
+	dst_mac.mac_addr[0]=0x0c;
+	dst_mac.mac_addr[1]=0x42;
+	dst_mac.mac_addr[2]=0xa1;
+	dst_mac.mac_addr[3]=0x4b;
+	dst_mac.mac_addr[4]=0xc5;
+	dst_mac.mac_addr[5]=0x8c;
+	
 	printf("%d\n",j++);
 	action[0].conf=&dst_mac;
 	printf("%d\n",j++);
