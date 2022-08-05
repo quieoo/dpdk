@@ -252,7 +252,22 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	addr.s_addr=ipv4_hdr->dst_addr;
 	printf(" -dst=%s\n",inet_ntoa(addr));
 
-	
+	//TCP-UDP
+	switch (ipv4_hdr->next_proto_id)
+	{
+		case IPPROTO_TCP:
+			struct rte_tcp_hdr *tcp=((unsigned char *)ipv4_hdr +
+					sizeof(struct rte_ipv4_hdr));
+			printf("TCP: src=%d -dst=%d\n",tcp->src_port,tcp->dst_port);
+			break;
+		case IPPROTO_UDP:
+			struct rte_udp_hdr *udp=(struct rte_udp_hdr *)((unsigned char *)ipv4_hdr +
+					sizeof(struct rte_ipv4_hdr));
+			printf("UDP: src=%d -dst=%d\n",udp->src_port,udp->dst_port);
+			break;
+		default:
+			printf("OTHER: typeid- %d\n",ipv4_hdr->next_proto_id);
+	}
 }
 
 static void
