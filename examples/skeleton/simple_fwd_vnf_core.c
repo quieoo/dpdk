@@ -240,8 +240,18 @@ print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
 static void generate_new_flow(struct rte_mbuf *mbuf){
 	//mac
 	struct rte_ether_hdr *eth_hdr=rte_pktmbuf_mtod(mbuf, struct rte_ether_dhr*);
-	print_ether_addr("src=",&eth_hdr->src_addr);
-	print_ether_addr("dst=",&eth_hdr->dst_addr);
+	print_ether_addr("MAC: src=",&eth_hdr->src_addr);
+	print_ether_addr(" -dst=",&eth_hdr->dst_addr);
+	printf("\n");
+
+	//ip
+	struct rte_ipv4_hdr *ipv4_hdr = (struct rte_ipv4_hdr *)(eth_hdr + 1);
+	struct in_addr addr;
+	addr.s_addr=ipv4_hdr->src_addr;
+	printf("IP: src=%s ",inet_ntoa(addr));
+	addr.s_addr=ipv4_hdr->dst_addr;
+	printf(" -dst=%s\n",inet_ntoa(addr));
+
 	
 }
 
