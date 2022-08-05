@@ -249,7 +249,8 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	/*
 		attr
 	*/
-	
+	attr.egress=1;
+	attr.ingress=1;
 
 	/*
 		pattern: match all new packet
