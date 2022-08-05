@@ -31,8 +31,8 @@
 #include "simple_fwd_pkt.h"
 
 #define VNF_RX_BURST_SIZE (32)
-#define MAX_PATTERN_NUM		3
-#define MAX_ACTION_NUM		2
+#define MAX_PATTERN_NUM		10
+#define MAX_ACTION_NUM		10
 #define SRC_IP ((0<<24) + (0<<16) + (0<<8) + 0) /* src ip = 0.0.0.0 */
 #define DEST_IP ((192<<24) + (168<<16) + (1<<8) + 1) /* dest ip = 192.168.1.1 */
 #define FULL_MASK 0xffffffff /* full mask */
