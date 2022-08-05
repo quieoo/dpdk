@@ -225,7 +225,7 @@ generate_ipv4_flow(uint16_t port_id, uint16_t rx_q,
 		flow = rte_flow_create(port_id, &attr, pattern, action, error);
 	/* >8 End of validation the rule and create it. */
 
-	output_flow(port_id, &attr, pattern, action, error);
+	//output_flow(port_id, &attr, pattern, action, error);
 	return flow;
 }
 
@@ -237,11 +237,19 @@ print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
 	printf("%s%s", what, buf);
 }
 
+static void generate_new_flow(struct rte_mbuf *mbuf){
+	//mac
+	struct rte_ether_hdr *eth_hdr=rte_pktmbuf_mtod(mbuf, struct rte_ether_dhr*);
+	print_ether_addr("src=",&eth_hdr->src_addr);
+	print_ether_addr("dst=",&eth_hdr->dst_addr);
+	
+}
+
 static void
 simple_fwd_process_offload(struct rte_mbuf *mbuf, uint16_t queue_id, struct app_vnf *vnf)
 {
-
 	
+	generate_new_flow(mbuf);
 
     /*
         simple_fwd_process_offload -> generate_ipv4_flow
@@ -258,8 +266,6 @@ simple_fwd_process_offload(struct rte_mbuf *mbuf, uint16_t queue_id, struct app_
 			error.message ? error.message : "(no stated reason)");
 		rte_exit(EXIT_FAILURE, "error in creating flow");
 	}
-
-    
 }
 
 void
