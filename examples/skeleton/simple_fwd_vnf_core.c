@@ -369,6 +369,9 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 		}
 		printf("create flow\n");
 		output_flow(port_id, &attr, pattern, action, &error);
+	}else{
+		printf("ERROR while validate flow: %d\n",res);
+		printf("%s\n",error.message);
 	}
 
 
