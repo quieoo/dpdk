@@ -367,7 +367,7 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 				error.message ? error.message : "(no stated reason)");
 			rte_exit(EXIT_FAILURE, "error in creating flow");
 		}
-		
+		printf("create flow\n");
 		output_flow(port_id, &attr, pattern, action, &error);
 	}
 
