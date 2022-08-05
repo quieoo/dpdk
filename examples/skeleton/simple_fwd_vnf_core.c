@@ -325,10 +325,8 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 
 	printf("----------------------------------------\n");
 	int j=0;
-	printf("%d\n",j++);
 	pattern[2].type=RTE_FLOW_ITEM_TYPE_END;
-	printf("%d\n",j++);
-
+	
 	/*
 		action: redirect all packet to 
 			dst_mac: 0x0c, 0x42, 0xa1, 0x4b, 0xc5, 0x8c
@@ -337,9 +335,7 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	*/
 	
 	action[0].type=RTE_FLOW_ACTION_TYPE_SET_MAC_DST;
-	printf("%d\n",j++);
 	struct rte_flow_action_set_mac dst_mac;
-	printf("%d\n",j++);
 	// memset(&dst_mac,0,sizeof(struct rte_flow_action_set_mac));
 	dst_mac.mac_addr[0]=0x0c;
 	dst_mac.mac_addr[1]=0x42;
@@ -347,10 +343,7 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	dst_mac.mac_addr[3]=0x4b;
 	dst_mac.mac_addr[4]=0xc5;
 	dst_mac.mac_addr[5]=0x8c;
-	
-	printf("%d\n",j++);
 	action[0].conf=&dst_mac;
-	printf("%d\n",j++);
 	
 	action[1].type=RTE_FLOW_ACTION_TYPE_SET_IPV4_DST;
 	struct rte_flow_action_set_ipv4 set_ipv4;
@@ -365,7 +358,6 @@ static void generate_new_flow(struct rte_mbuf *mbuf){
 	action[3].type=RTE_FLOW_ACTION_TYPE_END;
 
 	struct rte_flow_error error;
-	printf("prepare to validate flow\n");
 	int res=rte_flow_validate(port_id, &attr,pattern,action,&error);
 	if(!res){
 		flow = rte_flow_create(port_id, &attr, pattern, action, &error);
