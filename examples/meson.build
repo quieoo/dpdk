@@ -111,6 +111,7 @@ foreach example: examples
                 message('Missing dependency "@0@" for example "@1@"'.format(d, name))
                 break
             endif
+            message('******* dependency "@0@" for example "@1@"'.format(var_name, name))
             dep_objs += [get_variable(var_name)]
         endforeach
     endif
