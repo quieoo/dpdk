@@ -649,6 +649,7 @@ signal_handler(int signum)
 int
 main(int argc, char **argv)
 {
+	rte_log_set_global_level(8);
 	RTE_LOG(INFO, L2FWD, "lcore %d has nothing to do\n", 88);
 
 	struct lcore_queue_conf *qconf;
