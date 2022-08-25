@@ -70,7 +70,12 @@ generate_flow(uint16_t port_id,
 		unique_data, rx_queues_count, dst_port);
 
 	fill_items(items, flow_items, outer_ip_src, core_idx);
-
+	printf("action:");
+	for (int i = 0; i < MAX_ACTIONS_NUM; i++)
+	{
+		printf(" %d", actions[i].type);
+	}
+	printf("\n");
 	flow = rte_flow_create(port_id, &attr, items, actions, error);
 	return flow;
 }
