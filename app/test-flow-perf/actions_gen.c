@@ -843,7 +843,6 @@ add_vxlan_encap(struct rte_flow_action *actions,
 	uint8_t actions_counter,
 	__rte_unused struct additional_para para)
 {
-	printf("################## add_vxlan_encap\n");
 	static struct rte_flow_action_vxlan_encap vxlan_encap[RTE_MAX_LCORE] __rte_cache_aligned;
 	static struct rte_flow_item items[5];
 	static struct rte_flow_item_eth item_eth;
