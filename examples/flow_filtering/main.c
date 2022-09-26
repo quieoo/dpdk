@@ -299,7 +299,7 @@ main(int argc, char **argv)
 	flow = generate_ipv4_flow(port_id, selected_queue,
 				SRC_IP, EMPTY_MASK,
 				DEST_IP, FULL_MASK, &error);
-	/* >8 End of create flow and the flow rule. */
+	/* >8 End of create flow and the flow rule. 
 
 	
 	if (!flow) {
