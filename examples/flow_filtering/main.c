@@ -51,6 +51,31 @@ print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
 	printf("%s%s", what, buf);
 }
 
+void get_and_print_eth(struct rte_mbuf *m){
+	struct rte_ether_hdr *eth_hdr;
+	eth_hdr = rte_pktmbuf_mtod(m,
+	struct rte_ether_hdr *);
+	print_ether_addr("	ETH src:",&eth_hdr->src_addr);
+	print_ether_addr(" , dst:",&eth_hdr->dst_addr);
+	printf("\n");
+}
+
+void get_and_print_ip4(struct rte_mbuf *m){
+	/* Remove the Ethernet header and trailer from the input packet */
+	rte_pktmbuf_adj(m, (uint16_t)sizeof(struct rte_ether_hdr));
+
+	struct rte_ipv4_hdr *ip_hdr;
+	/* Read the lookup key (i.e. ip_dst) from the input packet */
+	ip_hdr = rte_pktmbuf_mtod(m, struct rte_ipv4_hdr *);
+	
+	struct in_addr mask_dst, mask_src;
+	mask_dst.s_addr = ip_hdr->dst_addr;
+	mask_src.s_addr = ip_hdr->src_addr;
+
+	printf("	IPv4 src: %s, dst: \n", inet_ntoa(mask_src), inet_ntoa(mask_dst));
+
+}
+
 /* Main_loop for flow filtering. 8< */
 static int
 main_loop(void)
@@ -71,17 +96,8 @@ main_loop(void)
 			if (nb_rx) {
 				for (j = 0; j < nb_rx; j++) {
 					struct rte_mbuf *m = mbufs[j];
-
-					eth_hdr = rte_pktmbuf_mtod(m,
-							struct rte_ether_hdr *);
-					print_ether_addr("src=",
-							&eth_hdr->src_addr);
-					print_ether_addr(" - dst=",
-							&eth_hdr->dst_addr);
-					printf(" - queue=0x%x",
-							(unsigned int)i);
-					printf("\n");
-
+					get_and_print_ip4(m);
+					get_and_print_eth(m);
 					rte_pktmbuf_free(m);
 				}
 			}
