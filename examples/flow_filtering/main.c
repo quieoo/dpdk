@@ -295,7 +295,7 @@ main(int argc, char **argv)
 	init_port();
 	/* >8 End of Initializing the ports using user defined init_port(). */
 
-	/* Create flow for send packet with. 8< */
+	/* Create flow for send packet with. 
 	flow = generate_ipv4_flow(port_id, selected_queue,
 				SRC_IP, EMPTY_MASK,
 				DEST_IP, FULL_MASK, &error);
