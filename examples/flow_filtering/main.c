@@ -87,7 +87,10 @@ main_loop(void)
 	uint16_t i;
 	uint16_t j;
 	int ret;
+	struct rte_ether_addr *mac_addr;
 
+	rte_eth_macaddr_get(port_id, mac_addr);
+	printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n\n", port_id, RTE_ETHER_ADDR_BYTES(mac_addr));
 	/* Reading the packets from all queues. 8< */
 	while (!force_quit) {
 		for (i = 0; i < nr_queues; i++) {
