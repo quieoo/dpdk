@@ -97,7 +97,7 @@ main_loop(void)
 				for (j = 0; j < nb_rx; j++) {
 					struct rte_mbuf *m = mbufs[j];
 					get_and_print_ip4(m);
-					//get_and_print_eth(m);
+					get_and_print_eth(m);
 					rte_pktmbuf_free(m);
 				}
 			}
