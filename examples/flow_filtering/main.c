@@ -55,7 +55,7 @@ void get_and_print_eth(struct rte_mbuf *m){
 	struct rte_ether_hdr *eth_hdr;
 	eth_hdr = rte_pktmbuf_mtod(m,
 	struct rte_ether_hdr *);
-	print_ether_addr("	ETH src:",&eth_hdr->src_addr);
+	print_ether_addr("ETH src:",&eth_hdr->src_addr);
 	print_ether_addr(" , dst:",&eth_hdr->dst_addr);
 	printf("\n");
 }
@@ -72,7 +72,7 @@ void get_and_print_ip4(struct rte_mbuf *m){
 	mask_dst.s_addr = ip_hdr->dst_addr;
 	mask_src.s_addr = ip_hdr->src_addr;
 
-	printf("	IPv4 src: %s, dst: \n", inet_ntoa(mask_src), inet_ntoa(mask_dst));
+	printf("IPv4 src: %s, dst: %s\n", inet_ntoa(mask_src), inet_ntoa(mask_dst));
 
 }
 
