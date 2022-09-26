@@ -94,6 +94,7 @@ main_loop(void)
 	int ret;
 	static struct rte_ether_addr l2fwd_ports_eth_addr[RTE_MAX_ETHPORTS];
 	struct rte_ether_addr *mac_addr;
+	int count=0;
 
 	rte_eth_macaddr_get(port_id, &l2fwd_ports_eth_addr[port_id]);
 	printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n\n", port_id, RTE_ETHER_ADDR_BYTES(&l2fwd_ports_eth_addr[port_id]));
@@ -105,8 +106,9 @@ main_loop(void)
 			if (nb_rx) {
 				for (j = 0; j < nb_rx; j++) {
 					struct rte_mbuf *m = mbufs[j];
-					get_and_print_ip4(m);
-					get_and_print_eth(m);
+					printf("%d\n", count++);
+					//get_and_print_ip4(m);
+					//get_and_print_eth(m);
 					rte_pktmbuf_free(m);
 				}
 			}
