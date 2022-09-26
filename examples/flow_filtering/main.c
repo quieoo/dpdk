@@ -41,6 +41,9 @@ struct rte_flow *flow;
 #define FULL_MASK 0xffffffff /* full mask */
 #define EMPTY_MASK 0x0 /* empty mask */
 
+
+#define RTE_MAX_ETHPORTS 32
+
 #include "flow_blocks.c"
 
 static inline void
@@ -76,6 +79,8 @@ void get_and_print_ip4(struct rte_mbuf *m){
 
 }
 
+
+
 /* Main_loop for flow filtering. 8< */
 static int
 main_loop(void)
@@ -87,10 +92,11 @@ main_loop(void)
 	uint16_t i;
 	uint16_t j;
 	int ret;
+	static struct rte_ether_addr l2fwd_ports_eth_addr[RTE_MAX_ETHPORTS];
 	struct rte_ether_addr *mac_addr;
 
-	rte_eth_macaddr_get(port_id, mac_addr);
-	printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n\n", port_id, RTE_ETHER_ADDR_BYTES(mac_addr));
+	rte_eth_macaddr_get(port_id, &l2fwd_ports_eth_addr[port_id]);
+	printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n\n", port_id, RTE_ETHER_ADDR_BYTES(&l2fwd_ports_eth_addr[port_id]));
 	/* Reading the packets from all queues. 8< */
 	while (!force_quit) {
 		for (i = 0; i < nr_queues; i++) {
