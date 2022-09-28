@@ -103,6 +103,23 @@ port_init(uint16_t port, struct rte_mempool *mbuf_pool)
 }
 /* >8 End of main functional part of port initialization. */
 
+static inline void
+print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
+{
+	char buf[RTE_ETHER_ADDR_FMT_SIZE];
+	rte_ether_format_addr(buf, RTE_ETHER_ADDR_FMT_SIZE, eth_addr);
+	printf("%s%s", what, buf);
+}
+
+void get_and_print_eth(struct rte_mbuf *m){
+	struct rte_ether_hdr *eth_hdr;
+	eth_hdr = rte_pktmbuf_mtod(m,
+	struct rte_ether_hdr *);
+	print_ether_addr("		ETH src:",&eth_hdr->src_addr);
+	print_ether_addr(" , dst:",&eth_hdr->dst_addr);
+	printf("\n");
+}
+
 /*
  * The lcore main. This is the main thread that does the work, reading from
  * an input port and writing to an output port.
@@ -145,6 +162,10 @@ lcore_main(void)
 			if (unlikely(nb_rx == 0))
 				continue;
 			printf(" port-%d, receive packets %d\n", port, nb_rx);
+			for(int i=0; i< nb_rx; i++){
+				struct rte_mbuf *m=bufs[i];
+				get_and_print_eth(m);
+			}
 			/* Send burst of TX packets, to second port of pair. */
 			//const uint16_t nb_tx = rte_eth_tx_burst(port ^ 1, 0,bufs, nb_rx);
 			const uint16_t nb_tx=0;
