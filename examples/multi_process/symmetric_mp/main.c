@@ -165,30 +165,13 @@ smp_parse_args(int argc, char **argv)
 	return ret;
 }
 
-/*
- * Initialises a given port using global settings and with the rx buffers
- * coming from the mbuf_pool passed as parameter
- */
-static inline int
-smp_port_init(uint16_t port, struct rte_mempool *mbuf_pool,
-	       uint16_t num_queues)
+static void
+init_port(uint16_t port_id, struct rte_mempool *mbuf_pool,
+	       uint16_t nr_queues)
 {
-	/*struct rte_eth_conf port_conf = {
-			.rxmode = {
-				.mq_mode	= RTE_ETH_MQ_RX_RSS,
-				.split_hdr_size = 0,
-				.offloads = RTE_ETH_RX_OFFLOAD_CHECKSUM,
-			},
-			.rx_adv_conf = {
-				.rss_conf = {
-					.rss_key = NULL,
-					.rss_hf = RTE_ETH_RSS_IP,
-				},
-			},
-			.txmode = {
-				.mq_mode = RTE_ETH_MQ_TX_NONE,
-			}
-	};*/
+	int ret;
+	uint16_t i;
+	/* Ethernet port configured with default settings. 8< */
 	struct rte_eth_conf port_conf = {
 		.rxmode = {
 			.split_hdr_size = 0,
@@ -203,7 +186,107 @@ smp_port_init(uint16_t port, struct rte_mempool *mbuf_pool,
 				RTE_ETH_TX_OFFLOAD_TCP_TSO,
 		},
 	};
+	struct rte_eth_txconf txq_conf;
+	struct rte_eth_rxconf rxq_conf;
+	struct rte_eth_dev_info dev_info;
 
+	ret = rte_eth_dev_info_get(port_id, &dev_info);
+	if (ret != 0)
+		rte_exit(EXIT_FAILURE,
+			"Error during getting device (port %u) info: %s\n",
+			port_id, strerror(-ret));
+
+	port_conf.txmode.offloads &= dev_info.tx_offload_capa;
+	printf(":: initializing port: %d\n", port_id);
+	ret = rte_eth_dev_configure(port_id,
+				nr_queues, nr_queues, &port_conf);
+	if (ret < 0) {
+		rte_exit(EXIT_FAILURE,
+			":: cannot configure device: err=%d, port=%u\n",
+			ret, port_id);
+	}
+
+	rxq_conf = dev_info.default_rxconf;
+	rxq_conf.offloads = port_conf.rxmode.offloads;
+	/* >8 End of ethernet port configured with default settings. */
+
+	/* Configuring number of RX and TX queues connected to single port. 8< */
+	for (i = 0; i < nr_queues; i++) {
+		ret = rte_eth_rx_queue_setup(port_id, i, 512,
+				     rte_eth_dev_socket_id(port_id),
+				     &rxq_conf,
+				     mbuf_pool);
+		if (ret < 0) {
+			rte_exit(EXIT_FAILURE,
+				":: Rx queue setup failed: err=%d, port=%u\n",
+				ret, port_id);
+		}
+	}
+
+	txq_conf = dev_info.default_txconf;
+	txq_conf.offloads = port_conf.txmode.offloads;
+
+	for (i = 0; i < nr_queues; i++) {
+		ret = rte_eth_tx_queue_setup(port_id, i, 512,
+				rte_eth_dev_socket_id(port_id),
+				&txq_conf);
+		if (ret < 0) {
+			rte_exit(EXIT_FAILURE,
+				":: Tx queue setup failed: err=%d, port=%u\n",
+				ret, port_id);
+		}
+	}
+	/* >8 End of Configuring RX and TX queues connected to single port. */
+
+	/* Setting the RX port to promiscuous mode. 8< */
+	ret = rte_eth_promiscuous_enable(port_id);
+	if (ret != 0)
+		rte_exit(EXIT_FAILURE,
+			":: promiscuous mode enable failed: err=%s, port=%u\n",
+			rte_strerror(-ret), port_id);
+	/* >8 End of setting the RX port to promiscuous mode. */
+
+	/* Starting the port. 8< */
+	ret = rte_eth_dev_start(port_id);
+	if (ret < 0) {
+		rte_exit(EXIT_FAILURE,
+			"rte_eth_dev_start:err=%d, port=%u\n",
+			ret, port_id);
+	}
+	/* >8 End of starting the port. */
+
+	assert_link_status();
+
+	printf(":: initializing port: %d done\n", port_id);
+}
+/* >8 End of Port initialization used in flow filtering. */
+
+
+/*
+ * Initialises a given port using global settings and with the rx buffers
+ * coming from the mbuf_pool passed as parameter
+ */
+static inline int
+smp_port_init(uint16_t port, struct rte_mempool *mbuf_pool,
+	       uint16_t num_queues)
+{
+	struct rte_eth_conf port_conf = {
+			.rxmode = {
+				.mq_mode	= RTE_ETH_MQ_RX_RSS,
+				.split_hdr_size = 0,
+				.offloads = RTE_ETH_RX_OFFLOAD_CHECKSUM,
+			},
+			.rx_adv_conf = {
+				.rss_conf = {
+					.rss_key = NULL,
+					.rss_hf = RTE_ETH_RSS_IP,
+				},
+			},
+			.txmode = {
+				.mq_mode = RTE_ETH_MQ_TX_NONE,
+			}
+	};
+	
 	const uint16_t rx_rings = num_queues, tx_rings = num_queues;
 	struct rte_eth_dev_info info;
 	struct rte_eth_rxconf rxq_conf;
@@ -510,7 +593,7 @@ main(int argc, char **argv)
 		rte_exit(EXIT_FAILURE, "Application must use an even number of ports\n");
 	for(i = 0; i < num_ports; i++){
 		if(proc_type == RTE_PROC_PRIMARY)
-			if (smp_port_init(ports[i], mp, (uint16_t)num_procs) < 0)
+			if (init_port(ports[i], mp, (uint16_t)num_procs) < 0)
 				rte_exit(EXIT_FAILURE, "Error initialising ports\n");
 	}
 	/* >8 End of primary instance initialization. */
