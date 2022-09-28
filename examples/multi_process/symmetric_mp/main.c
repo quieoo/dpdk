@@ -255,7 +255,7 @@ init_port(uint16_t port_id, struct rte_mempool *mbuf_pool,
 	}
 	/* >8 End of starting the port. */
 
-	assert_link_status();
+	// assert_link_status();
 
 	printf(":: initializing port: %d done\n", port_id);
 	return 0;
