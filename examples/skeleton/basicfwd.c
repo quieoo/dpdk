@@ -169,7 +169,7 @@ lcore_main(void)
  * functions.
  */
 int
-skeleton_main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
 	struct rte_mempool *mbuf_pool;
 	unsigned nb_ports;
