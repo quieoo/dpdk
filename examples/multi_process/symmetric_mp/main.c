@@ -310,6 +310,15 @@ assign_ports_to_cores(void)
 	}
 }
 
+void get_and_print_eth(struct rte_mbuf *m){
+	struct rte_ether_hdr *eth_hdr;
+	eth_hdr = rte_pktmbuf_mtod(m,
+	struct rte_ether_hdr *);
+	print_ether_addr("ETH src:",&eth_hdr->src_addr);
+	print_ether_addr(" , dst:",&eth_hdr->dst_addr);
+	printf("\n");
+}
+
 /* Main function used by the processing threads.
  * Prints out some configuration details for the thread and then begins
  * performing packet RX and TX.
@@ -356,7 +365,8 @@ lcore_main(void *arg __rte_unused)
 			if (rx_c == 0)
 				continue;
 			pstats[src].rx += rx_c;
-			printf("port %d receive : %d\n", src, pstats[src].rx);
+			struct rte_mbuf *m=buf[0];
+			get_and_print_eth(m);
 			const uint16_t tx_c = rte_eth_tx_burst(dst, q_id, buf, rx_c);
 			pstats[dst].tx += tx_c;
 			if (tx_c != rx_c) {
