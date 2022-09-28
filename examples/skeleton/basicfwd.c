@@ -146,9 +146,8 @@ lcore_main(void)
 				continue;
 			printf(" port-%d, receive packets %d\n", port, nb_rx);
 			/* Send burst of TX packets, to second port of pair. */
-			const uint16_t nb_tx = rte_eth_tx_burst(port ^ 1, 0,
-					bufs, nb_rx);
-
+			//const uint16_t nb_tx = rte_eth_tx_burst(port ^ 1, 0,bufs, nb_rx);
+			const uint16_t nb_tx=0;
 			/* Free any unsent packets. */
 			if (unlikely(nb_tx < nb_rx)) {
 				uint16_t buf;
@@ -183,8 +182,6 @@ main(int argc, char *argv[])
 
 	/* Check that there is an even number of ports to send/receive on. */
 	nb_ports = rte_eth_dev_count_avail();
-	if (nb_ports < 2 || (nb_ports & 1))
-		rte_exit(EXIT_FAILURE, "Error: number of ports must be even\n");
 
 	/* Creates a new mempool in memory to hold the mbufs. */
 
