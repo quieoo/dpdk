@@ -469,8 +469,15 @@ lcore_main(void *arg __rte_unused)
 			if (rx_c == 0)
 				continue;
 			pstats[src].rx += rx_c;
-			struct rte_mbuf *m=buf[0];
-			get_and_print_eth(m);
+			
+			for (int j = 0; j < rx_c; j++) {
+					struct rte_mbuf *m = buf[j];
+					// printf("%d\n", count++);
+					//get_and_print_ip4(m);
+					get_and_print_eth(m);
+					rte_pktmbuf_free(m);
+			}
+			continue;
 			const uint16_t tx_c = rte_eth_tx_burst(dst, q_id, buf, rx_c);
 			pstats[dst].tx += tx_c;
 			if (tx_c != rx_c) {
