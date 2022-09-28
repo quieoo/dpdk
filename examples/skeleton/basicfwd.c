@@ -147,7 +147,7 @@ lcore_main(void)
 
 			if (unlikely(nb_rx == 0))
 				continue;
-
+			printf(" port-%d, receive packets %d\n", port, nb_rx);
 			/* Send burst of TX packets, to second port of pair. */
 			const uint16_t nb_tx = rte_eth_tx_burst(port ^ 1, 0,
 					bufs, nb_rx);
