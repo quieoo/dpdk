@@ -582,7 +582,7 @@ main(int argc, char **argv)
 		rte_exit(EXIT_FAILURE, "No Ethernet ports - bye\n");
 
 	/* parse application arguments (those after the EAL ones) */
-	smp_parse_args(argc, argv);
+	// smp_parse_args(argc, argv);
 
 	proc_type = rte_eal_process_type();
 	mp = (proc_type == RTE_PROC_SECONDARY) ?
