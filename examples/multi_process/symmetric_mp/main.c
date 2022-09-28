@@ -258,6 +258,7 @@ init_port(uint16_t port_id, struct rte_mempool *mbuf_pool,
 	assert_link_status();
 
 	printf(":: initializing port: %d done\n", port_id);
+	return 0;
 }
 /* >8 End of Port initialization used in flow filtering. */
 
