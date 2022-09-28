@@ -165,7 +165,7 @@ smp_parse_args(int argc, char **argv)
 	return ret;
 }
 
-static void
+static int
 init_port(uint16_t port_id, struct rte_mempool *mbuf_pool,
 	       uint16_t nr_queues)
 {
