@@ -173,7 +173,7 @@ static inline int
 smp_port_init(uint16_t port, struct rte_mempool *mbuf_pool,
 	       uint16_t num_queues)
 {
-	struct rte_eth_conf port_conf = {
+	/*struct rte_eth_conf port_conf = {
 			.rxmode = {
 				.mq_mode	= RTE_ETH_MQ_RX_RSS,
 				.split_hdr_size = 0,
@@ -188,7 +188,22 @@ smp_port_init(uint16_t port, struct rte_mempool *mbuf_pool,
 			.txmode = {
 				.mq_mode = RTE_ETH_MQ_TX_NONE,
 			}
+	};*/
+	struct rte_eth_conf port_conf = {
+		.rxmode = {
+			.split_hdr_size = 0,
+		},
+		.txmode = {
+			.offloads =
+				RTE_ETH_TX_OFFLOAD_VLAN_INSERT |
+				RTE_ETH_TX_OFFLOAD_IPV4_CKSUM  |
+				RTE_ETH_TX_OFFLOAD_UDP_CKSUM   |
+				RTE_ETH_TX_OFFLOAD_TCP_CKSUM   |
+				RTE_ETH_TX_OFFLOAD_SCTP_CKSUM  |
+				RTE_ETH_TX_OFFLOAD_TCP_TSO,
+		},
 	};
+
 	const uint16_t rx_rings = num_queues, tx_rings = num_queues;
 	struct rte_eth_dev_info info;
 	struct rte_eth_rxconf rxq_conf;
@@ -318,8 +333,7 @@ print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
 }
 void get_and_print_eth(struct rte_mbuf *m){
 	struct rte_ether_hdr *eth_hdr;
-	eth_hdr = rte_pktmbuf_mtod(m,
-	struct rte_ether_hdr *);
+	eth_hdr = rte_pktmbuf_mtod(m,struct rte_ether_hdr *);
 	print_ether_addr("ETH src:",&eth_hdr->src_addr);
 	print_ether_addr(" , dst:",&eth_hdr->dst_addr);
 	printf("\n");
