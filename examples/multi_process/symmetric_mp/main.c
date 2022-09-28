@@ -70,7 +70,7 @@ struct port_stats{
 static int proc_id = -1;
 static unsigned num_procs = 0;
 
-static uint16_t ports[RTE_MAX_ETHPORTS];
+// static uint16_t ports[RTE_MAX_ETHPORTS];
 static unsigned num_ports = 0;
 
 static struct lcore_ports lcore_ports[RTE_MAX_LCORE];
@@ -100,7 +100,7 @@ print_stats(int signum)
 	unsigned i;
 	printf("\nExiting on signal %d\n\n", signum);
 	for (i = 0; i < num_ports; i++){
-		const uint8_t p_num = ports[i];
+		const uint8_t p_num = i;
 		printf("Port %u: RX - %u, TX - %u, Drop - %u\n", (unsigned)p_num,
 				pstats[p_num].rx, pstats[p_num].tx, pstats[p_num].drop);
 	}
@@ -154,10 +154,6 @@ smp_parse_args(int argc, char **argv)
 	if (port_mask == 0)
 		smp_usage(prgname, "Invalid or missing port mask\n");
 
-	/* get the port numbers from the port mask */
-	RTE_ETH_FOREACH_DEV(i)
-		if(port_mask & (1 << i))
-			ports[num_ports++] = (uint8_t)i;
 
 	ret = optind-1;
 	optind = 1; /* reset getopt lib */
@@ -443,17 +439,7 @@ lcore_main(void *arg __rte_unused)
 		return 0;
 	}
 
-	/* build up message in msgbuf before printing to decrease likelihood
-	 * of multi-core message interleaving.
-	 */
-	msgbufpos += snprintf(msgbuf, sizeof(msgbuf) - msgbufpos,
-			"Lcore %u using ports ", id);
-	for (p = start_port; p < end_port; p++){
-		msgbufpos += snprintf(msgbuf + msgbufpos, sizeof(msgbuf) - msgbufpos,
-				"%u ", (unsigned)ports[p]);
-	}
-	printf("%s\n", msgbuf);
-	printf("lcore %u using queue %u of each port\n", id, (unsigned)q_id);
+
 
 	/* handle packet I/O from the ports, reading and writing to the
 	 * queue number corresponding to our process number (not lcore id)
@@ -609,7 +595,7 @@ main(int argc, char **argv)
 	
 
 	for(int i=0;i<num_ports;i++){
-		int port_id=ports[i];
+		int port_id=i;
 		rte_eth_macaddr_get(port_id, &ports_eth_addr[port_id]);
 		printf("ports[%u], MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port_id, RTE_ETHER_ADDR_BYTES(&ports_eth_addr[port_id]));
 	}
@@ -618,7 +604,7 @@ main(int argc, char **argv)
 		rte_exit(EXIT_FAILURE, "Application must use an even number of ports\n");
 	for(i = 0; i < num_ports; i++){
 		if(proc_type == RTE_PROC_PRIMARY)
-			if (init_port(ports[i], mp, (uint16_t)num_procs) < 0)
+			if (init_port(i, mp, (uint16_t)num_procs) < 0)
 				rte_exit(EXIT_FAILURE, "Error initialising ports\n");
 	}
 	/* >8 End of primary instance initialization. */
