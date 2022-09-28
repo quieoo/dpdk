@@ -557,7 +557,7 @@ static struct rte_ether_addr ports_eth_addr[RTE_MAX_ETHPORTS];
 int
 main(int argc, char **argv)
 {
-	static const char *_SMP_MBUF_POOL = "SMP_MBUF_POOL";
+	static const char *_SMP_MBUF_POOL = "mbuf_pool";
 	int ret;
 	unsigned i;
 	enum rte_proc_type_t proc_type;
@@ -606,8 +606,10 @@ main(int argc, char **argv)
 	}
 	/* >8 End of primary instance initialization. */
 
+	/*
 	if (proc_type == RTE_PROC_PRIMARY)
 		check_all_ports_link_status((uint8_t)num_ports, (~0x0));
+	*/
 
 	assign_ports_to_cores();
 
