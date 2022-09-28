@@ -489,16 +489,17 @@ lcore_main(void *arg __rte_unused)
 		for(int port_id=0;port_id<2;port_id++)
 		{			
 			for (i = 0; i < 4; i++) {
-				int nb_rx = rte_eth_rx_burst(port_id,
+				int rx_c = rte_eth_rx_burst(port_id,
 							i, buf, 32);
-				if (nb_rx) {
-					for (int j = 0; j < nb_rx; j++) {
-						struct rte_mbuf *m = buf[j];
-						// printf("%d\n", count++);
-						//get_and_print_ip4(m);
-						get_and_print_eth(m);
-						rte_pktmbuf_free(m);
-					}
+				if (rx_c == 0)
+					continue;
+				pstats[port_id].rx += rx_c;
+				const uint16_t tx_c = rte_eth_tx_burst(port_id^1, q_id, buf, rx_c);
+				pstats[port_id^1].tx += tx_c;
+				if (tx_c != rx_c) {
+					pstats[port_id^1].drop += (rx_c - tx_c);
+					for (i = tx_c; i < rx_c; i++)
+						rte_pktmbuf_free(buf[i]);
 				}
 			}
 		}
