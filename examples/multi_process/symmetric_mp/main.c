@@ -309,7 +309,13 @@ assign_ports_to_cores(void)
 		ports_assigned += lcore_ports[i].num_ports;
 	}
 }
-
+static inline void
+print_ether_addr(const char *what, struct rte_ether_addr *eth_addr)
+{
+	char buf[RTE_ETHER_ADDR_FMT_SIZE];
+	rte_ether_format_addr(buf, RTE_ETHER_ADDR_FMT_SIZE, eth_addr);
+	printf("%s%s", what, buf);
+}
 void get_and_print_eth(struct rte_mbuf *m){
 	struct rte_ether_hdr *eth_hdr;
 	eth_hdr = rte_pktmbuf_mtod(m,
