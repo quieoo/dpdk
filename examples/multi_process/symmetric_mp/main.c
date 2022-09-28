@@ -352,6 +352,7 @@ lcore_main(void *arg __rte_unused)
 		for (p = start_port; p < end_port; p++) {
 			const uint8_t src = ports[p];
 			const uint8_t dst = ports[p ^ 1]; /* 0 <-> 1, 2 <-> 3 etc */
+			printf("%d -> %d\n", src, dst);
 			const uint16_t rx_c = rte_eth_rx_burst(src, q_id, buf, PKT_BURST);
 			if (rx_c == 0)
 				continue;
