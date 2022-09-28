@@ -71,7 +71,7 @@ static int proc_id = -1;
 static unsigned num_procs = 0;
 
 // static uint16_t ports[RTE_MAX_ETHPORTS];
-static unsigned num_ports = 0;
+static unsigned num_ports = 2;
 
 static struct lcore_ports lcore_ports[RTE_MAX_LCORE];
 static struct port_stats pstats[RTE_MAX_ETHPORTS];
