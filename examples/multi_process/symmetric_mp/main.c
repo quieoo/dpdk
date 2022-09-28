@@ -468,11 +468,12 @@ main(int argc, char **argv)
 				rte_socket_id());
 	if (mp == NULL)
 		rte_exit(EXIT_FAILURE, "Cannot get memory pool for buffers\n");
+	
 
-
-	for(int port_id=0;port_id<num_ports;port_id++){
+	for(int i=0;i<num_ports;i++){
+		int port_id=ports[i];
 		rte_eth_macaddr_get(port_id, &ports_eth_addr[port_id]);
-		printf("Port %u, MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port_id, RTE_ETHER_ADDR_BYTES(&ports_eth_addr[port_id]));
+		printf("ports[%u], MAC address: " RTE_ETHER_ADDR_PRT_FMT "\n", port_id, RTE_ETHER_ADDR_BYTES(&ports_eth_addr[port_id]));
 	}
 	/* Primary instance initialized. 8< */
 	if (num_ports & 1)
