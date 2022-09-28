@@ -352,12 +352,11 @@ lcore_main(void *arg __rte_unused)
 		for (p = start_port; p < end_port; p++) {
 			const uint8_t src = ports[p];
 			const uint8_t dst = ports[p ^ 1]; /* 0 <-> 1, 2 <-> 3 etc */
-			printf("%d -> %d\n", src, dst);
 			const uint16_t rx_c = rte_eth_rx_burst(src, q_id, buf, PKT_BURST);
 			if (rx_c == 0)
 				continue;
 			pstats[src].rx += rx_c;
-
+			printf("port %d receive : %d\n", src, pstats[src].rx);
 			const uint16_t tx_c = rte_eth_tx_burst(dst, q_id, buf, rx_c);
 			pstats[dst].tx += tx_c;
 			if (tx_c != rx_c) {
