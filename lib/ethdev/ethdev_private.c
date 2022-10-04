@@ -7,6 +7,8 @@
 #include "rte_ethdev.h"
 #include "ethdev_driver.h"
 #include "ethdev_private.h"
+#include "soft_flow.h"
+
 
 static const char *MZ_RTE_ETH_DEV_DATA = "rte_eth_dev_data";
 
@@ -282,6 +284,7 @@ eth_dev_fp_ops_setup(struct rte_eth_fp_ops *fpo,
 
 	fpo->txq.data = dev->data->tx_queues;
 	fpo->txq.clbk = (void **)(uintptr_t)dev->pre_tx_burst_cbs;
+	fpo->flow_process_sw=flow_process;
 }
 
 uint16_t

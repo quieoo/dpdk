@@ -56,6 +56,11 @@ typedef int (*eth_rx_descriptor_status_t)(void *rxq, uint16_t offset);
 /** @internal Check the status of a Tx descriptor */
 typedef int (*eth_tx_descriptor_status_t)(void *txq, uint16_t offset);
 
+
+typedef int (*soft_flow_process)(uint16_t port_id, uint16_t queue_id,
+		 struct rte_mbuf **rx_pkts, const uint16_t nb_pkts);
+
+
 /**
  * @internal
  * Structure used to hold opaque pointers to internal ethdev Rx/Tx
@@ -78,6 +83,7 @@ struct rte_ethdev_qdata {
  * On 32-bit systems contents of this structure fits into one 64B line.
  */
 struct rte_eth_fp_ops {
+	soft_flow_process flow_process_sw;
 
 	/**@{*/
 	/**
@@ -114,5 +120,7 @@ struct rte_eth_fp_ops {
 } __rte_cache_aligned;
 
 extern struct rte_eth_fp_ops rte_eth_fp_ops[RTE_MAX_ETHPORTS];
+
+
 
 #endif /* _RTE_ETHDEV_CORE_H_ */

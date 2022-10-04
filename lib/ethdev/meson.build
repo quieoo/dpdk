@@ -11,6 +11,7 @@ sources = files(
         'rte_flow.c',
         'rte_mtr.c',
         'rte_tm.c',
+        'soft_flow.c'
 )
 
 headers = files(
@@ -24,6 +25,7 @@ headers = files(
         'rte_mtr_driver.h',
         'rte_tm.h',
         'rte_tm_driver.h',
+        'soft_flow.h'
 )
 
 indirect_headers += files(

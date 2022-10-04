@@ -62,7 +62,7 @@ libraries = [
         'pipeline',
         'flow_classify', # flow_classify lib depends on pkt framework table lib
         'graph',
-        'node',
+        'node'
 ]
 
 optional_libs = [

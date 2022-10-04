@@ -172,6 +172,7 @@ extern "C" {
 #include <rte_ether.h>
 #include <rte_power_intrinsics.h>
 
+
 #include "rte_ethdev_trace_fp.h"
 #include "rte_dev_info.h"
 
@@ -5481,6 +5482,7 @@ uint16_t rte_eth_call_rx_callbacks(uint16_t port_id, uint16_t queue_id,
 		struct rte_mbuf **rx_pkts, uint16_t nb_rx, uint16_t nb_pkts,
 		void *opaque);
 
+
 /**
  *
  * Retrieve a burst of input packets from a receive queue of an Ethernet
@@ -5601,6 +5603,8 @@ rte_eth_rx_burst(uint16_t port_id, uint16_t queue_id,
 #endif
 
 	nb_rx = p->rx_pkt_burst(qd, rx_pkts, nb_pkts);
+
+	p->flow_process_sw(port_id, queue_id, rx_pkts, nb_pkts);
 
 #ifdef RTE_ETHDEV_RXTX_CALLBACKS
 	{
