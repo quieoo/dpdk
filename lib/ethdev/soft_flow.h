@@ -11,13 +11,11 @@
 
 
 typedef struct rte_flow{
+	struct rte_flow_attr attr;
     struct rte_flow_item pattern[MAX_PATTERN_LENGTH];
     struct rte_flow_action actions[MAX_ACTION_LENGTH];
 };
 
-int soft_flow_init(int* pq_map, int table_size);
-int soft_flow_start();
-int soft_flow_stop();
 
 
 
