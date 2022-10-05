@@ -61,6 +61,8 @@ DPDK_22 {
 	rte_eal_mp_wait_lcore;
 	rte_eal_primary_proc_alive; # WINDOWS_NO_EXPORT
 	rte_eal_process_type;
+	enable_soft_flow;
+	is_soft_flow_enabled;
 	rte_eal_remote_launch;
 	rte_eal_tailq_lookup;
 	rte_eal_tailq_register;

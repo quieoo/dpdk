@@ -39,4 +39,4 @@ driver_sdk_headers += files(
         'ethdev_vdev.h',
 )
 
-deps += ['net', 'kvargs', 'meter', 'telemetry']
+deps += ['net', 'kvargs', 'meter', 'telemetry', 'eal']

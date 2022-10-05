@@ -63,6 +63,7 @@ eal_short_options[] =
 	"n:" /* memory channels */
 	"r:" /* memory ranks */
 	"v"  /* version */
+	"F"
 	;
 
 const struct option
@@ -103,6 +104,7 @@ eal_long_options[] = {
 	{OPT_TELEMETRY,         0, NULL, OPT_TELEMETRY_NUM        },
 	{OPT_NO_TELEMETRY,      0, NULL, OPT_NO_TELEMETRY_NUM     },
 	{OPT_FORCE_MAX_SIMD_BITWIDTH, 1, NULL, OPT_FORCE_MAX_SIMD_BITWIDTH_NUM},
+	{"soft_flow", 0, NULL, 'F'},
 
 	{0,                     0, NULL, 0                        }
 };
@@ -2227,6 +2229,8 @@ eal_common_usage(void)
 	       "  --"OPT_TELEMETRY"   Enable telemetry support (on by default)\n"
 	       "  --"OPT_NO_TELEMETRY"   Disable telemetry support\n"
 	       "  --"OPT_FORCE_MAX_SIMD_BITWIDTH" Force the max SIMD bitwidth\n"
+		   "  -F, --soft_flow     Enable soft flow process, it will take over all received packet and forward from other port if flow rules hitted.\n"
+
 	       "\nEAL options for DEBUG use only:\n"
 	       "  --"OPT_HUGE_UNLINK"[=existing|always|never]\n"
 	       "                      When to unlink files in hugetlbfs\n"

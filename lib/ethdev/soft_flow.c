@@ -1,6 +1,6 @@
 #include "soft_flow.h"
 #include "rte_ethdev_core.h"
-
+#include <rte_eal.h>
 
 int direct_port_queue[MAX_PORT_QUEUE];
 bool IS_SOFT_FLOW_ON;
@@ -28,6 +28,8 @@ soft_flow_create(uint16_t port_id,
 		struct rte_flow_error *error){}
 
 int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts, const uint16_t nb_pkts){
+	if(!is_soft_flow_enabled())
+		return 0;
 	
 	//send burst
 	/*

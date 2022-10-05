@@ -61,6 +61,8 @@ struct rte_config {
 	 * DPDK instances
 	 */
 	struct rte_mem_config *mem_config;
+
+	bool is_soft_process;
 } __rte_packed;
 
 /**

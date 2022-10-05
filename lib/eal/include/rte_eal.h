@@ -50,6 +50,10 @@ enum rte_proc_type_t {
  */
 enum rte_proc_type_t rte_eal_process_type(void);
 
+void enable_soft_flow(void);
+
+bool is_soft_flow_enabled(void);
+
 /**
  * Request iopl privilege for all RPL.
  *

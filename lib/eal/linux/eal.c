@@ -715,7 +715,13 @@ eal_parse_args(int argc, char **argv)
 		case OPT_MATCH_ALLOCATIONS_NUM:
 			internal_conf->match_allocations = 1;
 			break;
-
+		case 'F':
+		{
+			enable_soft_flow();
+			// IS_SOFT_FLOW_ON=true;
+			printf("enable soft_flow\n");
+			break;
+		}
 		default:
 			if (opt < OPT_LONG_MIN_NUM && isprint(opt)) {
 				RTE_LOG(ERR, EAL, "Option %c is not supported "

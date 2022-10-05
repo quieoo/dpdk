@@ -74,6 +74,13 @@ rte_eal_process_type(void)
 	return rte_config.process_type;
 }
 
+void enable_soft_flow(void){
+	rte_config.is_soft_process=true;
+}
+
+bool is_soft_flow_enabled(void){
+	return rte_config.is_soft_process;
+}
 /* Return user provided mbuf pool ops name */
 const char *
 rte_eal_mbuf_user_pool_ops(void)
