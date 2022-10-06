@@ -39,6 +39,7 @@
 #include "ethdev_driver.h"
 #include "ethdev_profile.h"
 #include "ethdev_private.h"
+#include "soft_flow.h"
 
 struct rte_eth_dev rte_eth_devices[RTE_MAX_ETHPORTS];
 
@@ -1509,6 +1510,8 @@ rte_eth_dev_start(uint16_t port_id)
 	eth_dev_fp_ops_setup(rte_eth_fp_ops + port_id, dev);
 
 	rte_ethdev_trace_start(port_id);
+
+	soft_flow_create_table();
 	return 0;
 }
 
@@ -1536,6 +1539,8 @@ rte_eth_dev_stop(uint16_t port_id)
 	dev->data->dev_started = 0;
 	ret = (*dev->dev_ops->dev_stop)(dev);
 	rte_ethdev_trace_stop(port_id, ret);
+
+	soft_flow_destroy_all_table();
 
 	return ret;
 }

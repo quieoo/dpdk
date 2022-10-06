@@ -35,4 +35,8 @@ soft_flow_create(uint16_t port_id,
 int flow_process(uint16_t port_id, uint16_t queue_id,
 		 struct rte_mbuf **rx_pkts, const uint16_t nb_pkts);
 
+
+void soft_flow_create_table();
+
+void soft_flow_destroy_all_table();
 #endif

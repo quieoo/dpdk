@@ -11,6 +11,7 @@ sources = files(
         'rte_flow.c',
         'rte_mtr.c',
         'rte_tm.c',
+        'simple_lru_hash_table.c',
         'soft_flow.c'
 )
 
@@ -25,6 +26,7 @@ headers = files(
         'rte_mtr_driver.h',
         'rte_tm.h',
         'rte_tm_driver.h',
+        'simple_lru_hash_table.h',
         'soft_flow.h'
 )
 
