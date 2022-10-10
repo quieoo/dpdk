@@ -160,9 +160,9 @@ soft_flow_create_flow(uint16_t port_id,
 
 int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts, const uint16_t nb_pkts){
 	if(!is_soft_flow_enabled())
-		return 0;
+		return nb_pkts;
 	if(nb_pkts==0)
-		return 0;
+		return nb_pkts;
 	struct rte_ipv4_hdr *ipv4_hdr;
 	bool hit[32]={0};
 	int last_tx_send_position=0;
