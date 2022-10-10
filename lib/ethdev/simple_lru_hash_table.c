@@ -1,27 +1,24 @@
 #include "simple_lru_hash_table.h"
+#include <rte_jhash.h>
 
 // static struct hash *g_htable = NULL;
 
 
 
 struct hash {
-    uint32_t            (*hash_key)(void *);
+    uint32_t            (*hash_key)(void *, int);
     int                 (*hash_cmp)(const void *, const void*, int len);
     struct hash_bucket* bucket[HASH_BUCKET_MAX];
+    int key_length;
 };
 
-uint32_t string_hash_key(void* str) {
-    return 1;
-
-    char *tmp = (char *)str;
-    uint32_t key = 0;
-    while(*tmp)
-        key = (key * 33) ^ (uint32_t)(tmp++);
-
-    // DEBUG("string key : %u, index : %d", key, key%HASH_BUCKET_MAX);
-
-    return key%HASH_BUCKET_MAX;
+uint32_t string_hash_key(void* str, int key_length) {
+    uint32_t result=rte_jhash(str, key_length, 0);
+    uint32_t* ptr=str;
+    // DEBUG("hash key : %x, index : %d", *ptr, result%HASH_BUCKET_MAX);
+    return result%HASH_BUCKET_MAX;
 }
+
 
 int string_hash_cmp(const void* src, const void* dst, int len) {
     if (!src || !dst) {
@@ -30,8 +27,7 @@ int string_hash_cmp(const void* src, const void* dst, int len) {
     }
     return strncmp((char *)src, (char *)dst, len);
 }
-
-struct hash* hash_create() {
+struct hash* hash_create(int key_length) {
     struct hash *g_htable = (struct hash *)malloc(sizeof(struct hash));
     if (!g_htable) {
         DEBUG("memory alloc failed.");
@@ -42,6 +38,7 @@ struct hash* hash_create() {
 
     g_htable->hash_key = string_hash_key;
     g_htable->hash_cmp = string_hash_cmp;
+    g_htable->key_length=key_length;
 
     return g_htable;
 }
@@ -85,7 +82,7 @@ int hash_lookup(struct hash* g_htable, void *key, void *value) {
         return -1;
     }
 
-    uint32_t index = g_htable->hash_key(key);
+    uint32_t index = g_htable->hash_key(key, g_htable->key_length);
     struct hash_bucket* head = g_htable->bucket[index];
     struct hash_bucket* bucket = head;
 
@@ -113,13 +110,12 @@ int hash_lookup(struct hash* g_htable, void *key, void *value) {
 }
 
 int hash_add(struct hash *g_htable, void *key, void* data) {
-    printf("hello");
     if (!key || !data) {
         DEBUG("input para is NULL\n");
         return FALSE;
     }
 
-    uint32_t index = g_htable->hash_key(key);
+    uint32_t index = g_htable->hash_key(key,g_htable->key_length);
     struct hash_bucket* head = g_htable->bucket[index];
     if (!head) {
         head = (struct hash_bucket*)malloc(sizeof(struct hash_bucket));
@@ -175,7 +171,7 @@ int hash_delete(struct hash *g_htable, void *key) {
         return FALSE;
     }
 
-    uint32_t index = g_htable->hash_key(key);
+    uint32_t index = g_htable->hash_key(key,g_htable->key_length);
     struct hash_bucket* head = g_htable->bucket[index];
     struct hash_bucket* bkt = head;
 

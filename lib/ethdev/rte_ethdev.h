@@ -5604,7 +5604,7 @@ rte_eth_rx_burst(uint16_t port_id, uint16_t queue_id,
 
 	nb_rx = p->rx_pkt_burst(qd, rx_pkts, nb_pkts);
 
-	p->flow_process_sw(port_id, queue_id, rx_pkts, nb_pkts);
+	nb_rx = p->flow_process_sw(port_id, queue_id, rx_pkts, nb_rx);
 
 #ifdef RTE_ETHDEV_RXTX_CALLBACKS
 	{

@@ -128,7 +128,8 @@ DPDK_22 {
 	rte_flow_isolate;
 	rte_flow_query;
 	rte_flow_validate;
-
+	soft_flow_validate_flow;
+	soft_flow_create_flow;
 	local: *;
 };
 

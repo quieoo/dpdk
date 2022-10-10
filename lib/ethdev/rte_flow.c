@@ -17,6 +17,7 @@
 #include "rte_ethdev.h"
 #include "rte_flow_driver.h"
 #include "rte_flow.h"
+#include "soft_flow.h"
 
 /* Mbuf dynamic field name for metadata. */
 int32_t rte_flow_dynf_metadata_offs = -1;
@@ -355,6 +356,8 @@ rte_flow_validate(uint16_t port_id,
 		  const struct rte_flow_action actions[],
 		  struct rte_flow_error *error)
 {
+	if(is_soft_flow_enabled())
+		return soft_flow_validate_flow(port_id, attr, pattern, actions, error);
 	const struct rte_flow_ops *ops = rte_flow_ops_get(port_id, error);
 	struct rte_eth_dev *dev = &rte_eth_devices[port_id];
 	int ret;
@@ -380,6 +383,8 @@ rte_flow_create(uint16_t port_id,
 		const struct rte_flow_action actions[],
 		struct rte_flow_error *error)
 {
+	if(is_soft_flow_enabled())
+		return soft_flow_create_flow(port_id, attr, pattern, actions, error);
 	struct rte_eth_dev *dev = &rte_eth_devices[port_id];
 	struct rte_flow *flow;
 	const struct rte_flow_ops *ops = rte_flow_ops_get(port_id, error);

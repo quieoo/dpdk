@@ -12,21 +12,21 @@
 
 typedef struct rte_flow{
 	struct rte_flow_attr attr;
-    struct rte_flow_item pattern[MAX_PATTERN_LENGTH];
+    // struct rte_flow_item pattern[MAX_PATTERN_LENGTH];
     struct rte_flow_action actions[MAX_ACTION_LENGTH];
 };
 
 
 
 
-int soft_flow_validate(uint16_t port_id,
+int soft_flow_validate_flow(uint16_t port_id,
 		  const struct rte_flow_attr *attr,
 		  const struct rte_flow_item pattern[],
 		  const struct rte_flow_action actions[],
 		  struct rte_flow_error *error);
 
 struct rte_flow *
-soft_flow_create(uint16_t port_id,
+soft_flow_create_flow(uint16_t port_id,
 		const struct rte_flow_attr *attr,
 		const struct rte_flow_item pattern[],
 		const struct rte_flow_action actions[],
