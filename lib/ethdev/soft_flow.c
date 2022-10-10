@@ -195,8 +195,10 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	// send out hit flow
 	void *qd;
 	struct rte_eth_fp_ops *p = &rte_eth_fp_ops[port_id^1];
-	qd = p->rxq.data[queue_id];
-	p->tx_pkt_burst(qd, tx_send, last_tx_send_position);
+	qd = p->txq.data[queue_id];
+	int send_pkts=p->tx_pkt_burst(qd, tx_send, last_tx_send_position);
+	// rte_ethdev_trace_tx_burst(port_id^1, queue_id, (void **)tx_send, send_pkts);
+	printf("fast path packets: %d\n", send_pkts);
 
 	// left un-hit pkts	
 	int last_not_hit_position=0;
