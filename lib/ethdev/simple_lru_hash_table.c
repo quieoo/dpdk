@@ -20,7 +20,7 @@ uint32_t string_hash_key(void* str, int key_length) {
         DEBUG("hash key: %x, index : %d", *ptr, result%HASH_BUCKET_MAX);
     }else if(key_length==6){
         uint8_t* ptr=str;
-        DEBUG("hash key: %x-%x-x-%x-x-%x, index: %d",
+        DEBUG("hash key: %x-%x-%x-%x-%x-%x, index: %d",
         ptr[0],
         ptr[1],
         ptr[2],
