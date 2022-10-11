@@ -719,7 +719,7 @@ eal_parse_args(int argc, char **argv)
 		{
 			enable_soft_flow();
 			// IS_SOFT_FLOW_ON=true;
-			RTE_LOG(INFO, EAL, "Enable soft flow");
+			RTE_LOG(INFO, EAL, "Enable soft flow.");
 			break;
 		}
 		default:
