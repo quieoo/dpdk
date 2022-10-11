@@ -14,8 +14,22 @@ struct hash {
 
 uint32_t string_hash_key(void* str, int key_length) {
     uint32_t result=rte_jhash(str, key_length, 0);
-    uint32_t* ptr=str;
-    // DEBUG("hash key : %x, index : %d", *ptr, result%HASH_BUCKET_MAX);
+    
+    if(key_length==4){
+        uint32_t* ptr=str;
+        DEBUG("hash key: %x, index : %d", *ptr, result%HASH_BUCKET_MAX);
+    }else if(key_length==6){
+        uint8_t* ptr=str;
+        DEBUG("hash key: %x-%x-x-%x-x-%x, index: %d",
+        ptr[0],
+        ptr[1],
+        ptr[2],
+        ptr[3],
+        ptr[4],
+        ptr[5],
+        result%HASH_BUCKET_MAX
+        );
+    }
     return result%HASH_BUCKET_MAX;
 }
 
