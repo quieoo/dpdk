@@ -101,7 +101,7 @@ int hash_lookup(struct hash* g_htable, void *key, void *value) {
     struct hash_bucket* bucket = head;
 
     while(bucket) {
-        if (0 == g_htable->hash_cmp(key, bucket->hkey, strlen((char*)key))) {
+        if (0 == g_htable->hash_cmp(key, bucket->hkey, g_htable->key_length)) {
             if (head != bucket && bucket != head->tail) {
                 bucket->prev->next = bucket->next;
                 bucket->next->prev = bucket->prev;
