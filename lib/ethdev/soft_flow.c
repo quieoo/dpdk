@@ -1,8 +1,6 @@
 #include "soft_flow.h"
 #include "rte_ethdev_core.h"
 #include <rte_eal.h>
-#include <rte_table_hash.h>
-#include <rte_lru.h>
 #include <rte_malloc.h>
 #include <rte_jhash.h>
 
@@ -13,20 +11,31 @@
 static struct rte_flow *flow_table[MAX_FLOW_RULE];
 static int num_flows=0;
 
-struct hash * match_table_src_ip;
-struct hash * match_table_dst_ip;
+struct hash *match_table_out_src_mac;
+struct hash *match_table_out_dst_mac;
+struct hash * match_table_out_src_ip;
+struct hash * match_table_out_dst_ip;
+
 
 void soft_flow_create_table(){
 	if(!is_soft_flow_enabled())
 		return;
 
-	if(!match_table_dst_ip){
-		match_table_dst_ip=hash_create(sizeof(rte_be32_t));
-		RTE_LOG(INFO, TABLE, "Create match table for dst ip\n");
+	if(!match_table_out_dst_ip){
+		match_table_out_dst_ip=hash_create(sizeof(rte_be32_t));
+		RTE_LOG(INFO, TABLE, "Create match table for out dst ip\n");
 	}
-	if(!match_table_src_ip){
-		match_table_src_ip=hash_create(sizeof(rte_be32_t));
-		RTE_LOG(INFO, TABLE, "Create match table for src ip\n");
+	if(!match_table_out_src_ip){
+		match_table_out_src_ip=hash_create(sizeof(rte_be32_t));
+		RTE_LOG(INFO, TABLE, "Create match table for out src ip\n");
+	}
+	if(!match_table_out_dst_mac){
+		match_table_out_dst_mac=hash_create(6);
+		RTE_LOG(INFO, TABLE, "Create match table for out dst mac\n");
+	}
+	if(!match_table_out_src_mac){
+		match_table_out_src_mac=hash_create(6);
+		RTE_LOG(INFO, TABLE, "Create match table for out src mac\n");
 	}
 
 }
@@ -43,13 +52,22 @@ void soft_flow_destroy_all_table(){
 	if(!is_soft_flow_enabled())
 		return;
 	
-	if(match_table_dst_ip){
-		hash_destroy(match_table_dst_ip);
-		RTE_LOG(INFO, TABLE, "Destroy match table for dst ip\n");
+	if(match_table_out_dst_ip){
+		hash_destroy(match_table_out_dst_ip);
+		RTE_LOG(INFO, TABLE, "Destroy match table for out dst ip\n");
 	}
-	if(match_table_src_ip){
-		hash_destroy(match_table_src_ip);
-		RTE_LOG(INFO, TABLE, "Destroy match table for src ip\n");
+	if(match_table_out_src_ip){
+		hash_destroy(match_table_out_src_ip);
+		RTE_LOG(INFO, TABLE, "Destroy match table for out src ip\n");
+	}
+
+	if(match_table_out_dst_mac){
+		hash_destroy(match_table_out_dst_mac);
+		RTE_LOG(INFO, TABLE, "Destroy match table for out dst mac\n");
+	}
+	if(match_table_out_src_mac){
+		hash_destroy(match_table_out_src_mac);
+		RTE_LOG(INFO, TABLE, "Destroy match table for out src mac\n");
 	}
 
 	if(num_flows)
@@ -132,8 +150,22 @@ soft_flow_create_flow(uint16_t port_id,
 
 	//build match entry and link the entry to its flow
 	const struct rte_flow_item *item = pattern;
-	printf("add flow rule:\n");
+	//printf("add flow rule:\n");
 	for(;item->type != RTE_FLOW_ITEM_TYPE_END; item++){
+		if(item->type == RTE_FLOW_ITEM_TYPE_ETH){
+			if(!(item->spec)){
+				continue;
+			}
+			const struct rte_flow_item_eth *spec=item->spec;
+			if(!hash_add(match_table_out_dst_mac, spec->hdr.dst_addr, &new_flow)){
+				RTE_LOG(ERR, TABLE, "Error add entry to hash table");
+				return NULL;
+			}
+			if(!hash_add(match_table_out_src_mac, spec->hdr.src_addr, &new_flow)){
+				RTE_LOG(ERR, TABLE, "Error add entry to hash table");
+				return NULL;
+			}
+		}
 		if(item->type==RTE_FLOW_ITEM_TYPE_IPV4){
 			if(!(item->spec)){
 				continue;
@@ -141,12 +173,12 @@ soft_flow_create_flow(uint16_t port_id,
 			const struct rte_flow_item_ipv4 *spec = item->spec;
 			if(spec->hdr.dst_addr==0 && spec->hdr.src_addr==0)
 				continue;
-			printf("	dst-%x src-%x\n", spec->hdr.dst_addr, spec->hdr.src_addr);
-			if(!hash_add(match_table_dst_ip, &(spec->hdr.dst_addr), &new_flow)){
+			//printf("	dst-%x src-%x\n", spec->hdr.dst_addr, spec->hdr.src_addr);
+			if(!hash_add(match_table_out_dst_ip, &(spec->hdr.dst_addr), &new_flow)){
 				RTE_LOG(ERR, TABLE, "Error add entry to hash table");
 				return NULL;
 			}
-			if(!hash_add(match_table_src_ip, &(spec->hdr.src_addr), &new_flow)){
+			if(!hash_add(match_table_out_src_ip, &(spec->hdr.src_addr), &new_flow)){
 				RTE_LOG(ERR, TABLE, "Error add entry to hash table");
 				return NULL;
 			}
@@ -168,15 +200,15 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	int last_tx_send_position=0;
 
 	struct rte_mbuf *tx_send[32];
-	printf("flow prcess incoming packets: \n");
+	// printf("flow prcess incoming packets: \n");
 	for(int i=0; i<nb_pkts; i++){
 		ipv4_hdr = rte_pktmbuf_mtod_offset(rx_pkts[i], struct rte_ipv4_hdr *, 
 			sizeof(struct rte_ether_hdr));
-		printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
+		// printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
 		struct rte_flow *flow;
 		
-		if(!hash_lookup(match_table_dst_ip, &(ipv4_hdr->dst_addr), &flow)){
-			if(!hash_lookup(match_table_src_ip, &(ipv4_hdr->src_addr), &flow)){
+		if(!hash_lookup(match_table_out_dst_ip, &(ipv4_hdr->dst_addr), &flow)){
+			if(!hash_lookup(match_table_out_src_ip, &(ipv4_hdr->src_addr), &flow)){
 				hit[i]=1;
 				tx_send[last_tx_send_position++]=rx_pkts[i];
 			}
@@ -185,11 +217,11 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	/*
 		process hit flow
 	*/
-	printf("flow hit: \n");
+	//printf("flow hit: \n");
 	for(int i=0; i<last_tx_send_position; i++){
 		ipv4_hdr = rte_pktmbuf_mtod_offset(tx_send[i], struct rte_ipv4_hdr *, 
 		sizeof(struct rte_ether_hdr));
-		printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
+		// printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
 	}
 
 	// send out hit flow
@@ -198,16 +230,16 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	qd = p->txq.data[queue_id];
 	int send_pkts=p->tx_pkt_burst(qd, tx_send, last_tx_send_position);
 	// rte_ethdev_trace_tx_burst(port_id^1, queue_id, (void **)tx_send, send_pkts);
-	printf("fast path packets: %d\n", send_pkts);
+	printf("fast path packets: %d : %d\n", send_pkts, nb_pkts);
 
 	// left un-hit pkts	
 	int last_not_hit_position=0;
-	printf("flow un-hit:\n");
+	// printf("flow un-hit:\n");
 	for(int i=0; i< nb_pkts; i++){
 		if(!hit[i]){
 			ipv4_hdr = rte_pktmbuf_mtod_offset(rx_pkts[i], struct rte_ipv4_hdr *, 
 			sizeof(struct rte_ether_hdr));
-			printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
+			// printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
 
 			rx_pkts[last_not_hit_position++]=rx_pkts[i];
 		}
