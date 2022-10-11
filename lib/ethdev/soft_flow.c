@@ -189,7 +189,9 @@ soft_flow_create_flow(uint16_t port_id,
 
 	return new_flow;
 }
-
+void print_eth(uint8_t* e){
+	printf("%x-%x-%x-%x-%x-%x", e[0], e[1], e[2], e[3], e[4], e[5]);
+}
 int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts, const uint16_t nb_pkts){
 	if(!is_soft_flow_enabled())
 		return nb_pkts;
@@ -201,12 +203,18 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	int last_tx_send_position=0;
 
 	struct rte_mbuf *tx_send[32];
-	// printf("flow prcess incoming packets: \n");
+	printf("flow prcess incoming packets: \n");
 	for(int i=0; i<nb_pkts; i++){
 		eth_hdr=rte_pktmbuf_mtod(rx_pkts[i], struct rte_ether_hdr *);
 		ipv4_hdr = rte_pktmbuf_mtod_offset(rx_pkts[i], struct rte_ipv4_hdr *, 
 			sizeof(struct rte_ether_hdr));
-		// printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
+		printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
+		printf("	dst ");
+		print_eth(eth_hdr->dst_addr.addr_bytes);
+		printf(" src ");
+		print_eth(eth_hdr->src_addr.addr_bytes);
+		printf("\n");
+		
 		struct rte_flow *flow;
 		if(hash_lookup(match_table_out_dst_mac, eth_hdr->dst_addr.addr_bytes, &flow))
 			continue;
