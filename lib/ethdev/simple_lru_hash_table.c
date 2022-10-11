@@ -14,7 +14,7 @@ struct hash {
 
 uint32_t string_hash_key(void* str, int key_length) {
     uint32_t result=rte_jhash(str, key_length, 0);
-    
+    /*
     if(key_length==4){
         uint32_t* ptr=str;
         DEBUG("hash key: %x, index : %d", *ptr, result%HASH_BUCKET_MAX);
@@ -29,7 +29,7 @@ uint32_t string_hash_key(void* str, int key_length) {
         ptr[5],
         result%HASH_BUCKET_MAX
         );
-    }
+    }*/
     return result%HASH_BUCKET_MAX;
 }
 
@@ -39,6 +39,7 @@ int string_hash_cmp(const void* src, const void* dst, int len) {
         //DEBUG("src addr: %p, dst addr: %p", src, dst);
         return -1;
     }
+    /*
     if(len==4){
         uint32_t* ptr=src;
         uint32_t* ptr1=dst;
@@ -60,7 +61,7 @@ int string_hash_cmp(const void* src, const void* dst, int len) {
         prt[4],
         prt[5]
         );
-    }
+    }*/
 
     return strncmp((char *)src, (char *)dst, len);
 }
