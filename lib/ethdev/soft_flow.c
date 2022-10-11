@@ -157,11 +157,11 @@ soft_flow_create_flow(uint16_t port_id,
 				continue;
 			}
 			const struct rte_flow_item_eth *spec=item->spec;
-			if(!hash_add(match_table_out_dst_mac, spec->hdr.dst_addr, &new_flow)){
+			if(!hash_add(match_table_out_dst_mac, spec->hdr.dst_addr.addr_bytes, &new_flow)){
 				RTE_LOG(ERR, TABLE, "Error add entry to hash table");
 				return NULL;
 			}
-			if(!hash_add(match_table_out_src_mac, spec->hdr.src_addr, &new_flow)){
+			if(!hash_add(match_table_out_src_mac, spec->hdr.src_addr.addr_bytes, &new_flow)){
 				RTE_LOG(ERR, TABLE, "Error add entry to hash table");
 				return NULL;
 			}
@@ -196,23 +196,29 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	if(nb_pkts==0)
 		return nb_pkts;
 	struct rte_ipv4_hdr *ipv4_hdr;
+	struct rte_ether_hdr *eth_hdr;
 	bool hit[32]={0};
 	int last_tx_send_position=0;
 
 	struct rte_mbuf *tx_send[32];
 	// printf("flow prcess incoming packets: \n");
 	for(int i=0; i<nb_pkts; i++){
+		eth_hdr=rte_pktmbuf_mtod(rx_pkts[i], struct rte_ether_hdr *);
 		ipv4_hdr = rte_pktmbuf_mtod_offset(rx_pkts[i], struct rte_ipv4_hdr *, 
 			sizeof(struct rte_ether_hdr));
 		// printf("	dst-%x src-%x\n", ipv4_hdr->dst_addr, ipv4_hdr->src_addr);
 		struct rte_flow *flow;
+		if(hash_lookup(match_table_out_dst_mac, eth_hdr->dst_addr.addr_bytes, &flow))
+			continue;
+		if(hash_lookup(match_table_out_src_mac, eth_hdr->src_addr.addr_bytes, &flow))
+			continue;
+		if(hash_lookup(match_table_out_dst_ip, &(ipv4_hdr->dst_addr), &flow))
+			continue;
+		if(hash_lookup(match_table_out_src_ip, &(ipv4_hdr->src_addr), &flow))
+			continue;
 		
-		if(!hash_lookup(match_table_out_dst_ip, &(ipv4_hdr->dst_addr), &flow)){
-			if(!hash_lookup(match_table_out_src_ip, &(ipv4_hdr->src_addr), &flow)){
-				hit[i]=1;
-				tx_send[last_tx_send_position++]=rx_pkts[i];
-			}
-		}
+		hit[i]=1;
+		tx_send[last_tx_send_position++]=rx_pkts[i];
 	}
 	/*
 		process hit flow
