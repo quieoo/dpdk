@@ -188,8 +188,6 @@ soft_flow_create_flow(uint16_t port_id,
 				continue;
 			}
 			const struct rte_flow_item_ipv4 *spec = item->spec;
-			if(spec->hdr.dst_addr==0 && spec->hdr.src_addr==0)
-				continue;
 			printf("	dst-%x src-%x\n", spec->hdr.dst_addr, spec->hdr.src_addr);
 			if(!hash_add(match_table_out_dst_ip, &(spec->hdr.dst_addr), &new_flow)){
 				RTE_LOG(ERR, TABLE, "Error add entry to hash table");
