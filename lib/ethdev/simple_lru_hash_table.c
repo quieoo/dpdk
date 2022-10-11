@@ -39,11 +39,11 @@ int string_hash_cmp(const void* src, const void* dst, int len) {
         //DEBUG("src addr: %p, dst addr: %p", src, dst);
         return -1;
     }
-    if(key_length==4){
+    if(len==4){
         uint32_t* ptr=src;
         uint32_t* ptr1=dst;
         DEBUG("compare key: %x %x", *ptr, *ptr1);
-    }else if(key_length==6){
+    }else if(len==6){
         uint8_t* ptr=src;
         uint8_t* prt=dst;
         DEBUG("compare key: %x-%x-%x-%x-%x-%x %x-%x-%x-%x-%x-%x",
