@@ -247,7 +247,7 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 			e.out_src_port=udp_hdr->src_port;
 			break;
 		default:
-			// printf("Unclassified IP Proto: %d\n", e.l4_type);
+			printf("Unclassified IP Proto: %d\n", e.l4_type);
 			break;
 		}
 		if(hash_lookup(match_table, &e, &flow))
