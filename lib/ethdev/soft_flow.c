@@ -218,7 +218,7 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	int last_tx_send_position = 0;
 
 	struct rte_mbuf *tx_send[32];
-	//printf("flow prcess incoming packets: \n");
+	printf("flow prcess incoming packets: \n");
 	for (int i = 0; i < nb_pkts; i++)
 	{
 		eth_hdr = rte_pktmbuf_mtod(rx_pkts[i], struct rte_ether_hdr *);
@@ -257,12 +257,13 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 			continue;
 		hit[i] = 1;
 		tx_send[last_tx_send_position++] = rx_pkts[i];
+		print_eth(eth_hdr);
+		printf("	dst-%x:%d src-%x:%d\n", ipv4_hdr->dst_addr,e.out_dst_port,ipv4_hdr->src_addr, e.out_src_port);
 		if(!flow)
 			printf("flow null\n");
 		else
 			printf("hit %d\n", flow->actions[0].type);
-		//print_eth(eth_hdr);
-		//printf("	dst-%x:%d src-%x:%d\n", ipv4_hdr->dst_addr,e.out_dst_port,ipv4_hdr->src_addr, e.out_src_port);
+		
 	}
 	/*
 		process hit flow
