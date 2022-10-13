@@ -151,7 +151,7 @@ soft_flow_create_flow(uint16_t port_id,
 		return NULL;
 	}
 
-	printf("build flow %d(%x)\n", new_flow->actions[0].type, new_flow);
+	printf("build flow %d(%x-%x)\n", new_flow->actions[0].type, new_flow, &(new_flow->actions[0].type));
 
 	// build match entry and link the entry to its flow
 	const struct rte_flow_item *item = pattern;
@@ -259,8 +259,8 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 		tx_send[last_tx_send_position++] = rx_pkts[i];
 		print_eth(eth_hdr);
 		printf("	dst-%x:%d src-%x:%d\n", ipv4_hdr->dst_addr,e.out_dst_port,ipv4_hdr->src_addr, e.out_src_port);
-		printf("flow: %x\n", flow);
-		
+		printf("flow: %x-%x\n", flow, &(flow->actions[0].type));
+
 		
 	}
 	/*
