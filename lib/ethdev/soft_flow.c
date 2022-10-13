@@ -258,21 +258,54 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 		
 		if(hash_lookup(match_table, &e, &flow_index))
 			continue;
-		printf("finding flow: %d, type %d", flow_index);
 		flow=flow_table[flow_index];
-		printf(" with type %d\n", flow->actions[2].type);
-
-		struct rte_flow_action_set_tp *dt=flow->actions[2].conf;
-		printf("	found port %d\n", dt->port);
-
 		hit[i] = 1;
 		tx_send[last_tx_send_position++] = rx_pkts[i];
 		
+		//process hitted flow
+		const struct rte_flow_action *act = flow->actions;
+		for (; act->type != RTE_FLOW_ITEM_TYPE_END; act++)
+		{
+			switch (act->type)
+			{
+			case RTE_FLOW_ACTION_TYPE_SET_MAC_DST:
+				struct rte_flow_action_set_mac *mac_dst=act->conf;
+				memcpy(eth_hdr->dst_addr.addr_bytes, mac_dst->mac_addr, 6);
+				break;
+			case RTE_FLOW_ACTION_TYPE_SET_MAC_SRC:
+				struct rte_flow_action_set_mac *mac_src=act->conf;
+				memcpy(eth_hdr->src_addr.addr_bytes, mac_src->mac_addr, 6);
+				break;
+			case RTE_FLOW_ACTION_TYPE_SET_IPV4_DST:
+				struct rte_flow_action_set_ipv4 *dst_ipv4=act->conf;
+				ipv4_hdr->dst_addr=dst_ipv4->ipv4_addr;
+				break;
+			case RTE_FLOW_ACTION_TYPE_SET_IPV4_SRC:
+				struct rte_flow_action_set_ipv4 *src_ipv4=act->conf;
+				ipv4_hdr->src_addr=src_ipv4->ipv4_addr;
+				break;
+			case RTE_FLOW_ACTION_TYPE_SET_TP_DST:
+				struct rte_flow_action_set_tp *dst_tp=act->conf;
+				if(ipv4_hdr->next_proto_id==IPPROTO_TCP)
+					tcp_hdr->dst_port=dst_tp->port;
+				else if(ipv4_hdr->next_proto_id==IPPROTO_UDP)
+					udp_hdr->dst_port=dst_tp->port;
+				break;
+			case RTE_FLOW_ACTION_TYPE_SET_TP_SRC:
+				struct rte_flow_action_set_tp *src_tp=act->conf;
+				if(ipv4_hdr->next_proto_id==IPPROTO_TCP)
+					tcp_hdr->src_port=src_tp->port;
+				else if(ipv4_hdr->next_proto_id==IPPROTO_UDP)
+					udp_hdr->src_port=src_tp->port;
+				break;
+			default:
+				// unsupport action
+				break;
+			}
+		} 
 		
 	}
-	/*
-		process hit flow
-	*/
+	
 		
 
 	// printf("flow hit: \n");
@@ -290,6 +323,9 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	int send_pkts = p->tx_pkt_burst(qd, tx_send, last_tx_send_position);
 	// rte_ethdev_trace_tx_burst(port_id^1, queue_id, (void **)tx_send, send_pkts);
 	printf("fast path packets: %d : %d\n", send_pkts, nb_pkts);
+
+	if(last_tx_send_position==nb_pkts)
+		return 0;
 
 	// left un-hit pkts
 	int last_not_hit_position = 0;
