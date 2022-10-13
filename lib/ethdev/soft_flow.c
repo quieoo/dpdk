@@ -268,36 +268,42 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 		{
 			switch (act->type)
 			{
-			case RTE_FLOW_ACTION_TYPE_SET_MAC_DST:
+			case RTE_FLOW_ACTION_TYPE_SET_MAC_DST:{
 				struct rte_flow_action_set_mac *mac_dst=act->conf;
 				memcpy(eth_hdr->dst_addr.addr_bytes, mac_dst->mac_addr, 6);
 				break;
-			case RTE_FLOW_ACTION_TYPE_SET_MAC_SRC:
+			}
+			case RTE_FLOW_ACTION_TYPE_SET_MAC_SRC:{
 				struct rte_flow_action_set_mac *mac_src=act->conf;
 				memcpy(eth_hdr->src_addr.addr_bytes, mac_src->mac_addr, 6);
 				break;
-			case RTE_FLOW_ACTION_TYPE_SET_IPV4_DST:
+			}
+			case RTE_FLOW_ACTION_TYPE_SET_IPV4_DST:{
 				struct rte_flow_action_set_ipv4 *dst_ipv4=act->conf;
 				ipv4_hdr->dst_addr=dst_ipv4->ipv4_addr;
 				break;
-			case RTE_FLOW_ACTION_TYPE_SET_IPV4_SRC:
+			}
+			case RTE_FLOW_ACTION_TYPE_SET_IPV4_SRC:{
 				struct rte_flow_action_set_ipv4 *src_ipv4=act->conf;
 				ipv4_hdr->src_addr=src_ipv4->ipv4_addr;
 				break;
-			case RTE_FLOW_ACTION_TYPE_SET_TP_DST:
+			}
+			case RTE_FLOW_ACTION_TYPE_SET_TP_DST:{
 				struct rte_flow_action_set_tp *dst_tp=act->conf;
 				if(ipv4_hdr->next_proto_id==IPPROTO_TCP)
 					tcp_hdr->dst_port=dst_tp->port;
 				else if(ipv4_hdr->next_proto_id==IPPROTO_UDP)
 					udp_hdr->dst_port=dst_tp->port;
 				break;
-			case RTE_FLOW_ACTION_TYPE_SET_TP_SRC:
+			}
+			case RTE_FLOW_ACTION_TYPE_SET_TP_SRC:{
 				struct rte_flow_action_set_tp *src_tp=act->conf;
 				if(ipv4_hdr->next_proto_id==IPPROTO_TCP)
 					tcp_hdr->src_port=src_tp->port;
 				else if(ipv4_hdr->next_proto_id==IPPROTO_UDP)
 					udp_hdr->src_port=src_tp->port;
 				break;
+			}
 			default:
 				// unsupport action
 				break;
