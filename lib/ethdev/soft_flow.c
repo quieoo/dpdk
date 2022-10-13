@@ -259,6 +259,8 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 		tx_send[last_tx_send_position++] = rx_pkts[i];
 		print_eth(eth_hdr);
 		printf("	dst-%x:%d src-%x:%d\n", ipv4_hdr->dst_addr,e.out_dst_port,ipv4_hdr->src_addr, e.out_src_port);
+		printf("%d\n", flow_table[0]->actions[0].type);
+		
 		printf("flow: %x-%x\n", flow, &(flow->actions[0].type));
 		printf("%d\n", flow[0].actions[0].type);
 		
