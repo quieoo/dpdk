@@ -10,6 +10,7 @@ struct hash {
     int                 (*hash_cmp)(const void *, const void*, int len);
     struct hash_bucket* bucket[HASH_BUCKET_MAX];
     int key_length;
+    int value_length;
 };
 
 uint32_t string_hash_key(void* str, int key_length) {
@@ -65,7 +66,7 @@ int string_hash_cmp(const void* src, const void* dst, int len) {
 
     return strncmp((char *)src, (char *)dst, len);
 }
-struct hash* hash_create(int key_length) {
+struct hash* hash_create(int key_length, int value_length) {
     struct hash *g_htable = (struct hash *)malloc(sizeof(struct hash));
     if (!g_htable) {
         DEBUG("memory alloc failed.");
@@ -77,6 +78,7 @@ struct hash* hash_create(int key_length) {
     g_htable->hash_key = string_hash_key;
     g_htable->hash_cmp = string_hash_cmp;
     g_htable->key_length=key_length;
+    g_htable->value_length=value_length;
 
     return g_htable;
 }
@@ -139,7 +141,7 @@ int hash_lookup(struct hash* g_htable, void *key, void *value) {
                 lru_bucket_move(bucket, head);
             }
             g_htable->bucket[index] = bucket;
-            memcpy(value, bucket->hdata, sizeof(bucket->hdata));
+            memcpy(value, bucket->hdata, g_htable->value_length);
             return 0;
         }
         bucket = bucket->next;
@@ -165,10 +167,15 @@ int hash_add(struct hash *g_htable, void *key, void* data) {
         memset(head, 0, sizeof(*head));
         head->capacity++;
 
-        head->hkey  = strdup((char *)key);
-        head->hdata = strdup((char *)data);
+        head->hkey=malloc(g_htable->key_length);
+        memcpy(head->hkey, key, g_htable->key_length);
+        //head->hkey  = strdup((char *)key);
+        head->hdata=malloc(g_htable->value_length);
+        memcpy(head->hdata, data, g_htable->value_length);
+        //head->hdata = strdup((char *)data);
         head->tail  = head;
         g_htable->bucket[index] = head;
+        
         return TRUE;
     }
 
@@ -195,8 +202,12 @@ int hash_add(struct hash *g_htable, void *key, void* data) {
     new_bucket->tail = head->tail;
     head->tail = NULL;
 
-    new_bucket->hkey  = strdup((char *)key);
-    new_bucket->hdata = strdup((char *)data);
+    new_bucket->hkey=malloc(g_htable->key_length);
+    memcpy(new_bucket->hkey, key, g_htable->key_length);
+    //head->hkey  = strdup((char *)key);
+    new_bucket->hdata=malloc(g_htable->value_length);
+    memcpy(new_bucket->hdata, data, g_htable->value_length);
+    //head->hdata = strdup((char *)data);
 
     g_htable->bucket[index] = new_bucket;
 

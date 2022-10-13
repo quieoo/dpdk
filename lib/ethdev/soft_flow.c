@@ -8,8 +8,8 @@
 // TODO
 //  int direct_port_queue[MAX_PORT_QUEUE];
 
-static struct rte_flow *flow_table[MAX_FLOW_RULE];
-static int num_flows = 0;
+struct rte_flow *flow_table[MAX_FLOW_RULE];
+uint32_t flow_table_tail = 0;
 
 typedef struct match_entry
 {
@@ -48,19 +48,19 @@ void soft_flow_create_table()
 
 	if (!match_table)
 	{
-		match_table = hash_create(MATCH_ENTRY_LENGTH);
+		match_table = hash_create(MATCH_ENTRY_LENGTH, sizeof(uint32_t));
 		RTE_LOG(INFO, TABLE, "Create match entry table\n");
 	}
 }
 
 static void soft_flow_destroy_flow_table()
 {
-	for (int i = 0; i < num_flows; i++)
+	for (int i = 0; i < flow_table_tail; i++)
 	{
 		if (flow_table[i])
 			free(flow_table[i]);
 	}
-	num_flows = 0;
+	flow_table_tail = 0;
 }
 
 void soft_flow_destroy_all_table()
@@ -72,7 +72,7 @@ void soft_flow_destroy_all_table()
 		hash_destroy(match_table);
 		RTE_LOG(INFO, TABLE, "Destroy match entry table\n");
 	}
-	if (num_flows)
+	if (flow_table_tail)
 		soft_flow_destroy_flow_table();
 }
 
@@ -151,7 +151,7 @@ soft_flow_create_flow(uint16_t port_id,
 		return NULL;
 	}
 
-	printf("build flow %d(%d)\n", new_flow->actions[0].type, num_flows);
+	printf("build flow %d(%d)\n", new_flow->actions[0].type, flow_table_tail);
 
 	// build match entry and link the entry to its flow
 	const struct rte_flow_item *item = pattern;
@@ -197,8 +197,8 @@ soft_flow_create_flow(uint16_t port_id,
 			break;
 		}
 	}
-	hash_add(match_table, &e, &num_flows);
-	flow_table[num_flows++] = new_flow;
+	hash_add(match_table, &e, &flow_table_tail);
+	flow_table[flow_table_tail++] = new_flow;
 
 	return new_flow;
 }
@@ -226,7 +226,7 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 										   sizeof(struct rte_ether_hdr));
 		
 		struct rte_flow *flow;
-		int flow_index;
+		uint32_t flow_index=0;
 
 		struct match_entry e;
 		memset(&e, 0x0, sizeof(struct match_entry));
@@ -255,9 +255,10 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 			// printf("Unclassified IP Proto: %d\n", e.l4_type);
 			break;
 		}
+		
 		if(hash_lookup(match_table, &e, &flow_index))
 			continue;
-		printf("finding flow: %d", flow_index);
+		printf("finding flow: %d\n", flow_index);
 		flow=flow_table[flow_index];
 		printf("found flow %d\n", flow->actions[0].type);
 

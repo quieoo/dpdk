@@ -27,7 +27,7 @@ struct hash_bucket {
 typedef struct hash;
 
 uint32_t string_hash_key(void* str, int key_length);
-struct hash* hash_create(int key_length);
+struct hash* hash_create(int key_length, int value_length);
 int hash_lookup(struct hash* g_htable, void *key, void *value);
 int hash_add(struct hash *g_htable, void *key, void* data);
 int hash_delete(struct hash *g_htable, void *key);
