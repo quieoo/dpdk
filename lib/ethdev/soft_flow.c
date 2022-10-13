@@ -134,7 +134,7 @@ soft_flow_create_flow(uint16_t port_id,
 	// RTE_LOG(INFO, TABLE, "create flow\n");
 
 	// keep track of all flow
-	struct rte_flow *new_flow = rte_zmalloc(NULL, sizeof(struct rte_flow), 0);
+	struct rte_flow *new_flow = malloc(sizeof(struct rte_flow));
 	if (!new_flow)
 	{
 		RTE_LOG(ERR, TABLE, "failed to allocate memory for new flow rule\n");
@@ -149,6 +149,8 @@ soft_flow_create_flow(uint16_t port_id,
 		RTE_LOG(ERR, TABLE, "rte_flow_conv error\n");
 		return NULL;
 	}
+
+	printf("build flow %d\n", new_flow->actions[0].type);
 
 	// build match entry and link the entry to its flow
 	const struct rte_flow_item *item = pattern;
