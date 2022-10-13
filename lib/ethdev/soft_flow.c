@@ -151,7 +151,7 @@ soft_flow_create_flow(uint16_t port_id,
 		return NULL;
 	}
 
-	printf("build flow %d(%x-%x)\n", new_flow->actions[0].type, new_flow, &(new_flow->actions[0].type));
+	printf("build flow %d(%d)\n", new_flow->actions[0].type, num_flows);
 
 	// build match entry and link the entry to its flow
 	const struct rte_flow_item *item = pattern;
@@ -260,6 +260,7 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 		flow=flow_table[flow_index];
 		hit[i] = 1;
 		tx_send[last_tx_send_position++] = rx_pkts[i];
+		printf("finding flow: %d", flow_index);
 		printf("found flow %d\n", flow->actions[0].type);
 		
 	}
