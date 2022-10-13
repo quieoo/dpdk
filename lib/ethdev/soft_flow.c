@@ -254,7 +254,14 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 			continue;
 		hit[i] = 1;
 		tx_send[last_tx_send_position++] = rx_pkts[i];
-		printf("hit %d\n", flow->actions[0].type);
+		if(!flow)
+			printf("flow null\n");
+		else if (!flow->actions[0])
+			printf("flow.actions[0] null\n");
+		else if (!flow->actions[0].type)
+			printf("flow.actions[0].type null\n");
+		else
+			printf("hit %d\n", flow->actions[0].type);
 		//print_eth(eth_hdr);
 		//printf("	dst-%x:%d src-%x:%d\n", ipv4_hdr->dst_addr,e.out_dst_port,ipv4_hdr->src_addr, e.out_src_port);
 	}
