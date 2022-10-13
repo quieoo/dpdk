@@ -134,7 +134,8 @@ soft_flow_create_flow(uint16_t port_id,
 	// RTE_LOG(INFO, TABLE, "create flow\n");
 
 	// keep track of all flow
-	struct rte_flow *new_flow = malloc(sizeof(struct rte_flow));
+	struct rte_flow *new_flow;
+	new_flow=rte_zmalloc(NULL, sizeof(struct rte_flow), RTE_CACHE_LINE_SIZE);
 	if (!new_flow)
 	{
 		RTE_LOG(ERR, TABLE, "failed to allocate memory for new flow rule\n");
