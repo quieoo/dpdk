@@ -152,7 +152,7 @@ soft_flow_create_flow(uint16_t port_id,
 
 	// build match entry and link the entry to its flow
 	const struct rte_flow_item *item = pattern;
-	printf("add flow rule:\n");
+	//printf("add flow rule:\n");
 
 	struct match_entry e;
 	memset(&e, 0x0, sizeof(struct match_entry));
@@ -164,14 +164,14 @@ soft_flow_create_flow(uint16_t port_id,
 		switch (item->type){
 		case RTE_FLOW_ITEM_TYPE_ETH:{
 			const struct rte_flow_item_eth *spec = item->spec;
-			print_eth(&(spec->hdr));
+			//print_eth(&(spec->hdr));
 			memcpy(e.out_dst_mac, spec->hdr.dst_addr.addr_bytes, 6);
 			memcpy(e.out_src_mac, spec->hdr.src_addr.addr_bytes, 6);
 			break;
 		}
 		case RTE_FLOW_ITEM_TYPE_IPV4:{
 			const struct rte_flow_item_ipv4 *spec = item->spec;
-			printf("	dst-%x src-%x\n", spec->hdr.dst_addr, spec->hdr.src_addr);
+			//printf("	dst-%x src-%x\n", spec->hdr.dst_addr, spec->hdr.src_addr);
 			e.out_dst_ip = spec->hdr.dst_addr;
 			e.out_src_ip = spec->hdr.src_addr;
 			e.l4_type = spec->hdr.next_proto_id;
@@ -215,7 +215,7 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 	int last_tx_send_position = 0;
 
 	struct rte_mbuf *tx_send[32];
-	printf("flow prcess incoming packets: \n");
+	//printf("flow prcess incoming packets: \n");
 	for (int i = 0; i < nb_pkts; i++)
 	{
 		eth_hdr = rte_pktmbuf_mtod(rx_pkts[i], struct rte_ether_hdr *);
@@ -247,17 +247,16 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 			e.out_src_port=udp_hdr->src_port;
 			break;
 		default:
-			printf("Unclassified IP Proto: %d\n", e.l4_type);
+			// printf("Unclassified IP Proto: %d\n", e.l4_type);
 			break;
 		}
 		if(hash_lookup(match_table, &e, &flow))
 			continue;
 		hit[i] = 1;
 		tx_send[last_tx_send_position++] = rx_pkts[i];
-
-		print_eth(eth_hdr);
-		printf("	dst-%x:%d src-%x:%d\n", ipv4_hdr->dst_addr,e.out_dst_port,
-		ipv4_hdr->src_addr, e.out_src_port);
+		printf("hit %d\n", flow->actions[0].type);
+		//print_eth(eth_hdr);
+		//printf("	dst-%x:%d src-%x:%d\n", ipv4_hdr->dst_addr,e.out_dst_port,ipv4_hdr->src_addr, e.out_src_port);
 	}
 	/*
 		process hit flow
