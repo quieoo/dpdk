@@ -151,7 +151,7 @@ soft_flow_create_flow(uint16_t port_id,
 		return NULL;
 	}
 
-	// printf("build flow %d(%x-%x)\n", new_flow->actions[0].type, new_flow, &(new_flow->actions[0].type));
+	printf("build flow %d(%x-%x)\n", new_flow->actions[0].type, new_flow, &(new_flow->actions[0].type));
 
 	// build match entry and link the entry to its flow
 	const struct rte_flow_item *item = pattern;
