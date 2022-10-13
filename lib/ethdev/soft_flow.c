@@ -256,10 +256,6 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 		tx_send[last_tx_send_position++] = rx_pkts[i];
 		if(!flow)
 			printf("flow null\n");
-		else if (!flow->actions[0])
-			printf("flow.actions[0] null\n");
-		else if (!flow->actions[0].type)
-			printf("flow.actions[0].type null\n");
 		else
 			printf("hit %d\n", flow->actions[0].type);
 		//print_eth(eth_hdr);
