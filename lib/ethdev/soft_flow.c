@@ -151,7 +151,7 @@ soft_flow_create_flow(uint16_t port_id,
 		return NULL;
 	}
 
-	printf("build flow %d(%x-%x)\n", new_flow->actions[0].type, new_flow, &(new_flow->actions[0].type));
+	// printf("build flow %d(%x-%x)\n", new_flow->actions[0].type, new_flow, &(new_flow->actions[0].type));
 
 	// build match entry and link the entry to its flow
 	const struct rte_flow_item *item = pattern;
@@ -197,7 +197,7 @@ soft_flow_create_flow(uint16_t port_id,
 			break;
 		}
 	}
-	hash_add(match_table, &e, &new_flow);
+	hash_add(match_table, &e, &num_flows);
 	flow_table[num_flows++] = new_flow;
 
 	return new_flow;
@@ -226,6 +226,8 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 										   sizeof(struct rte_ether_hdr));
 		
 		struct rte_flow *flow;
+		int flow_index;
+
 		struct match_entry e;
 		memset(&e, 0x0, sizeof(struct match_entry));
 		memcpy(e.out_dst_mac, eth_hdr->dst_addr.addr_bytes, 6);
@@ -253,19 +255,12 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 			// printf("Unclassified IP Proto: %d\n", e.l4_type);
 			break;
 		}
-		if(hash_lookup(match_table, &e, &flow))
+		if(hash_lookup(match_table, &e, &flow_index))
 			continue;
+		flow=flow_table[flow_index];
 		hit[i] = 1;
 		tx_send[last_tx_send_position++] = rx_pkts[i];
-		print_eth(eth_hdr);
-		printf("	dst-%x:%d src-%x:%d\n", ipv4_hdr->dst_addr,e.out_dst_port,ipv4_hdr->src_addr, e.out_src_port);
-		for(int i=0;i<num_flows;i++){
-			printf("%d ", i);
-			printf("%d\n", flow_table[i]->actions[0].type);
-		}
-		
-		printf("flow: %x-%x\n", flow, &(flow->actions[0].type));
-		printf("%d\n", flow[0].actions[0].type);
+		printf("found flow %d\n", flow->actions[0].type);
 		
 	}
 	/*
