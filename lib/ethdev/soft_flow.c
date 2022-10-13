@@ -257,11 +257,13 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 		}
 		if(hash_lookup(match_table, &e, &flow_index))
 			continue;
+		printf("finding flow: %d", flow_index);
 		flow=flow_table[flow_index];
+		printf("found flow %d\n", flow->actions[0].type);
+
 		hit[i] = 1;
 		tx_send[last_tx_send_position++] = rx_pkts[i];
-		printf("finding flow: %d", flow_index);
-		printf("found flow %d\n", flow->actions[0].type);
+		
 		
 	}
 	/*
