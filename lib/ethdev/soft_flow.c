@@ -8,7 +8,7 @@
 // TODO
 //  int direct_port_queue[MAX_PORT_QUEUE];
 
-struct rte_flow *flow_table[MAX_FLOW_RULE];
+struct rte_flow *soft_flow_table[MAX_FLOW_RULE];
 uint32_t flow_table_tail = 0;
 
 typedef struct match_entry
@@ -55,11 +55,13 @@ void soft_flow_create_table()
 
 static void soft_flow_destroy_flow_table()
 {
+	/*
 	for (int i = 0; i < flow_table_tail; i++)
 	{
-		if (flow_table[i])
-			free(flow_table[i]);
-	}
+		printf("	destroy flow-%d at %d\n", i, soft_flow_table[i]);
+		if (soft_flow_table[i])
+			free(soft_flow_table[i]);
+	}*/
 	flow_table_tail = 0;
 }
 
@@ -70,7 +72,8 @@ void soft_flow_destroy_all_table()
 	if (match_table)
 	{
 		hash_destroy(match_table);
-		RTE_LOG(INFO, TABLE, "Destroy match entry table\n");
+		RTE_LOG(INFO, TABLE, "soft_flow: destroy match entry table\n");
+		match_table=NULL;
 	}
 	if (flow_table_tail)
 		soft_flow_destroy_flow_table();
@@ -198,7 +201,8 @@ soft_flow_create_flow(uint16_t port_id,
 		}
 	}
 	hash_add(match_table, &e, &flow_table_tail);
-	flow_table[flow_table_tail++] = new_flow;
+	RTE_LOG(INFO, TABLE, "soft_flow: create flow-%d\n", flow_table_tail);
+	soft_flow_table[flow_table_tail++] = new_flow;
 
 	return new_flow;
 }
@@ -258,7 +262,7 @@ int flow_process(uint16_t port_id, uint16_t queue_id, struct rte_mbuf **rx_pkts,
 		
 		if(hash_lookup(match_table, &e, &flow_index))
 			continue;
-		flow=flow_table[flow_index];
+		flow=soft_flow_table[flow_index];
 		hit[i] = 1;
 		tx_send[last_tx_send_position++] = rx_pkts[i];
 		
