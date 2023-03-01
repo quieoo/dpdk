@@ -1,5 +1,5 @@
 #include "simple_lru_hash_table.h"
-#include <rte_jhash.h>
+#include <hash_table.h>
 
 // static struct hash *g_htable = NULL;
 
