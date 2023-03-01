@@ -2,7 +2,7 @@
 #include "rte_ethdev_core.h"
 #include <rte_eal.h>
 #include <rte_malloc.h>
-#include <rte_jhash.h>
+#include <hash_table.h>
 
 #include "simple_lru_hash_table.h"
 // TODO
